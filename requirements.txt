@@ -1,0 +1,7 @@
+langchain
+langgraph
+langchain_google_genai
+python-dotenv
+beautifulsoup4
+tavily-python
+duckduckgo-search

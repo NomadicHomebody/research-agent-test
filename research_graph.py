@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from typing import TypedDict, List, Dict, Any
 from operator import itemgetter
 
-from langchain_google_genai import ChatGoogleGemini
+from langchain_google_genai import GoogleGenerativeAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph
@@ -15,7 +15,11 @@ import requests
 load_dotenv()
 
 # 2. Initialize LLM
-llm = ChatGoogleGemini(model="gemini-1", temperature=0)
+llm = GoogleGenerativeAI(model="gemini-1.0-pro", temperature=0)
+
+def call_llm(messages):
+    # GoogleGenerativeAI uses .invoke_llm instead of .invoke
+    return llm.invoke_llm(messages)
 
 # 3. Define ResearchState TypedDict
 class ResearchState(TypedDict):
@@ -31,8 +35,60 @@ class ResearchState(TypedDict):
 # --- Node function stubs (to be implemented in next steps) ---
 
 def generate_queries_node(state: ResearchState) -> Dict[str, Any]:
-    # TODO: Implement query generation logic
-    return {}
+    """
+    Generates 3-5 effective search queries for the given research topic using the LLM.
+    Returns a dict with 'search_queries' and updated 'messages'.
+    Handles empty/non-string topics and LLM/parsing errors.
+    """
+    topic = state.get("topic", "")
+    messages = state.get("messages", []).copy()
+    queries = []
+    error_message = ""
+
+    # Edge case: topic must be a non-empty string
+    if not isinstance(topic, str) or not topic.strip():
+        error_message = "Invalid topic: must be a non-empty string."
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "search_queries": [],
+            "messages": messages,
+            "error_message": error_message
+        }
+
+    try:
+        prompt = ChatPromptTemplate.from_template(
+            "Given the research topic: '{topic}', generate 3-5 effective search queries that would help find relevant information online. "
+            "Return the queries as a numbered list."
+        ).format(topic=topic.strip())
+
+        llm_response = call_llm([HumanMessage(content=prompt)])
+
+        # Parse queries from LLM response (expects numbered list)
+        import re
+        raw = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
+        queries = [q.strip("- ").strip() for q in re.findall(r"(?:\d+\.|\-)\s*(.+)", raw) if q.strip()]
+        if not queries:
+            # fallback: split by lines if no numbers found
+            queries = [line.strip("- ").strip() for line in raw.splitlines() if line.strip()]
+
+        # Only keep 3-5 queries
+        queries = queries[:5]
+
+        messages.append({"role": "system", "content": f"Generated queries: {queries}"})
+
+        return {
+            "search_queries": queries,
+            "messages": messages,
+            "error_message": ""
+        }
+    except Exception as e:
+        error_message = f"Error generating queries: {str(e)}"
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "search_queries": [],
+            "messages": messages,
+            "error_message": error_message
+        }
 
 def web_search_node(state: ResearchState) -> Dict[str, Any]:
     # TODO: Implement web search logic

@@ -49,10 +49,19 @@
 
 ### a. Query Generator Node
 
-- [ ] Implement `generate_queries_node(state: ResearchState) -> Dict[str, Any]`
-  - [ ] Use `ChatPromptTemplate` to prompt LLM for 3-5 search queries.
-  - [ ] Parse LLM output into a list of queries.
-  - [ ] Return `{"search_queries": queries, "messages": ...}`.
+- [x] Implement `generate_queries_node(state: ResearchState) -> Dict[str, Any]`
+  - [x] Use `ChatPromptTemplate` to prompt LLM for 3-5 search queries.
+  - [x] Parse LLM output into a list of queries.
+  - [x] Return `{"search_queries": queries, "messages": ...}`.
+  - [x] **Add unit tests for Query Generator Node**
+    - [x] Create new test file and setup all required inputs and env var loading for proper testing
+    - [x] Test happy path: valid topic returns list of queries.
+    - [x] Test edge cases: empty topic, non-string topic.
+    - [x] Test exception handling: LLM errors, parsing errors.
+    - [x] Run all tests and validate that they all pass
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug: 
+        - If there is a bug then edit the main logic to fix the bug
+        - If no bug is evident then fix the test
 
 ### b. Web Searcher Node
 
@@ -60,6 +69,10 @@
   - [ ] Use `TavilySearchResults(max_results=3)` for each query.
   - [ ] Collect and deduplicate URLs/snippets.
   - [ ] Return `{"retrieved_docs": docs, "messages": ...}`.
+  - [ ] **Add unit tests for Web Searcher Node**
+    - [ ] Test happy path: valid queries return docs.
+    - [ ] Test edge cases: empty queries, duplicate queries.
+    - [ ] Test exception handling: API errors, network failures.
 
 ### c. Content Scraper Node
 
@@ -67,18 +80,30 @@
   - [ ] For each URL, fetch HTML with `requests.get(url)`.
   - [ ] Extract main text using `BeautifulSoup`.
   - [ ] Return `{"scraped_data": scraped_results, "messages": ...}`.
+  - [ ] **Add unit tests for Content Scraper Node**
+    - [ ] Test happy path: valid URLs return scraped content.
+    - [ ] Test edge cases: invalid URLs, empty content.
+    - [ ] Test exception handling: HTTP errors, parsing errors.
 
 ### d. Content Summarizer Node
 
 - [ ] Implement `summarize_content_node(state: ResearchState) -> Dict[str, Any]`
   - [ ] For each page, prompt LLM to summarize content relevant to topic.
   - [ ] Return `{"summaries": summaries, "messages": ...}`.
+  - [ ] **Add unit tests for Content Summarizer Node**
+    - [ ] Test happy path: valid content returns summaries.
+    - [ ] Test edge cases: empty content, irrelevant content.
+    - [ ] Test exception handling: LLM errors, empty summaries.
 
 ### e. Report Compiler Node
 
 - [ ] Implement `compile_report_node(state: ResearchState) -> Dict[str, Any]`
   - [ ] Prompt LLM to synthesize summaries into a structured report.
   - [ ] Return `{"final_report": report, "messages": ...}`.
+  - [ ] **Add unit tests for Report Compiler Node**
+    - [ ] Test happy path: valid summaries return report.
+    - [ ] Test edge cases: empty summaries, malformed summaries.
+    - [ ] Test exception handling: LLM errors, formatting errors.
 
 ---
 

@@ -63,31 +63,31 @@
         - If there is a bug then edit the main logic to fix the bug
         - If no bug is evident then fix the test
 
-### b. Web Searcher Node
-- [ ] Implement `web_search_node(state: ResearchState) -> Dict[str, Any]`
-  - [ ] Use `TavilySearchResults(max_results=3)` for each query.
-  - [ ] Collect and deduplicate URLs/snippets.
-  - [ ] Return `{"retrieved_docs": docs, "messages": ...}`.
-  - [ ] **Add unit tests for Web Searcher Node**
-    - [ ] Test happy path: valid queries return docs.
-    - [ ] Test edge cases: empty queries, duplicate queries.
-    - [ ] Test exception handling: API errors, network failures.
-    - [ ] Run all tests and validate that they all pass
+### b. Web Searcher Node/q
+- [x] Implement `web_search_node(state: ResearchState) -> Dict[str, Any]`
+  - [x] Use `TavilySearchResults(max_results=3)` for each query.
+  - [x] Collect and deduplicate URLs/snippets.
+  - [x] Return `{"retrieved_docs": docs, "messages": ...}`.
+  - [x] **Add unit tests for Web Searcher Node**
+    - [x] Test happy path: valid queries return docs.
+    - [x] Test edge cases: empty queries, duplicate queries.
+    - [x] Test exception handling: API errors, network failures.
+    - [x] Run all tests and validate that they all pass
       - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
         - If there is a bug then edit the main logic to fix the bug
         - If no bug is evident then fix the test
 
 ### c. Content Scraper Node
 
-- [ ] Implement `scrape_content_node(state: ResearchState) -> Dict[str, Any]`
-  - [ ] For each URL, fetch HTML with `requests.get(url)`.
-  - [ ] Extract main text using `BeautifulSoup`.
-  - [ ] Return `{"scraped_data": scraped_results, "messages": ...}`.
-  - [ ] **Add unit tests for Content Scraper Node**
-    - [ ] Test happy path: valid URLs return scraped content.
-    - [ ] Test edge cases: invalid URLs, empty content.
-    - [ ] Test exception handling: HTTP errors, parsing errors.
-    - [ ] Run all tests and validate that they all pass
+- [x] Implement `scrape_content_node(state: ResearchState) -> Dict[str, Any]`
+  - [x] For each URL, fetch HTML with `requests.get(url)`.
+  - [x] Extract main text using `BeautifulSoup`.
+  - [x] Return `{"scraped_data": scraped_results, "messages": ...}`.
+  - [x] **Add unit tests for Content Scraper Node**
+    - [x] Test happy path: valid URLs return scraped content.
+    - [x] Test edge cases: invalid URLs, empty content.
+    - [x] Test exception handling: HTTP errors, parsing errors.
+    - [x] Run all tests and validate that they all pass
       - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
         - If there is a bug then edit the main logic to fix the bug
         - If no bug is evident then fix the test

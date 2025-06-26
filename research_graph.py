@@ -142,8 +142,57 @@ def web_search_node(state: ResearchState) -> Dict[str, Any]:
         }
 
 def scrape_content_node(state: ResearchState) -> Dict[str, Any]:
-    # TODO: Implement content scraping logic
-    return {}
+    """
+    Scrapes the content from the URLs of the retrieved documents.
+    Returns a dict with 'scraped_data' and updated 'messages'.
+    Handles HTTP errors and cases where no documents are found.
+    """
+    docs = state.get("retrieved_docs", [])
+    messages = state.get("messages", []).copy()
+    scraped_data = []
+    error_message = ""
+
+    if not docs:
+        error_message = "No documents to scrape."
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "scraped_data": [],
+            "messages": messages,
+            "error_message": error_message
+        }
+
+    for doc in docs:
+        url = doc.get("url")
+        if not url:
+            continue
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+            soup = BeautifulSoup(response.content, "html.parser")
+            
+            # Attempt to find the main content, fall back to body
+            main_content = soup.find("article") or soup.find("main") or soup.body
+            if main_content:
+                # Remove script and style elements
+                for script_or_style in main_content(["script", "style"]):
+                    script_or_style.decompose()
+                text = main_content.get_text(separator="\n", strip=True)
+            else:
+                text = ""
+
+            scraped_data.append({"url": url, "content": text[:5000]}) # Limit content size
+            messages.append({"role": "system", "content": f"Successfully scraped {url}"})
+
+        except requests.RequestException as e:
+            messages.append({"role": "system", "content": f"Failed to scrape {url}: {e}"})
+        except Exception as e:
+            messages.append({"role": "system", "content": f"An unexpected error occurred while scraping {url}: {e}"})
+
+    return {
+        "scraped_data": scraped_data,
+        "messages": messages,
+        "error_message": ""
+    }
 
 def summarize_content_node(state: ResearchState) -> Dict[str, Any]:
 # --- Example: How to run the workflow (to be completed after workflow assembly) ---

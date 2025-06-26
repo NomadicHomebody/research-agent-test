@@ -91,8 +91,55 @@ def generate_queries_node(state: ResearchState) -> Dict[str, Any]:
         }
 
 def web_search_node(state: ResearchState) -> Dict[str, Any]:
-    # TODO: Implement web search logic
-    return {}
+    """
+    Performs web searches for each query, collects and deduplicates results.
+    Returns a dict with 'retrieved_docs' and updated 'messages'.
+    Handles API errors and empty search results.
+    """
+    queries = state.get("search_queries", [])
+    messages = state.get("messages", []).copy()
+    all_docs = []
+    error_message = ""
+
+    if not queries:
+        error_message = "No search queries provided."
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "retrieved_docs": [],
+            "messages": messages,
+            "error_message": error_message
+        }
+
+    try:
+        search_tool = TavilySearchResults(max_results=3)
+        for query in queries:
+            try:
+                results = search_tool.invoke([{"query": query}])
+                all_docs.extend(results)
+            except Exception as e:
+                messages.append({"role": "system", "content": f"Search failed for query '{query}': {e}"})
+                # Continue to next query
+                continue
+
+        # Deduplicate docs based on 'url'
+        unique_docs = {doc['url']: doc for doc in all_docs}.values()
+        all_docs = list(unique_docs)
+
+        messages.append({"role": "system", "content": f"Retrieved {len(all_docs)} unique documents."})
+
+        return {
+            "retrieved_docs": all_docs,
+            "messages": messages,
+            "error_message": ""
+        }
+    except Exception as e:
+        error_message = f"An unexpected error occurred during web search: {str(e)}"
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "retrieved_docs": [],
+            "messages": messages,
+            "error_message": error_message
+        }
 
 def scrape_content_node(state: ResearchState) -> Dict[str, Any]:
     # TODO: Implement content scraping logic

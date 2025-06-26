@@ -59,12 +59,11 @@
     - [x] Test edge cases: empty topic, non-string topic.
     - [x] Test exception handling: LLM errors, parsing errors.
     - [x] Run all tests and validate that they all pass
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug: 
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
         - If there is a bug then edit the main logic to fix the bug
         - If no bug is evident then fix the test
 
 ### b. Web Searcher Node
-
 - [ ] Implement `web_search_node(state: ResearchState) -> Dict[str, Any]`
   - [ ] Use `TavilySearchResults(max_results=3)` for each query.
   - [ ] Collect and deduplicate URLs/snippets.
@@ -73,6 +72,10 @@
     - [ ] Test happy path: valid queries return docs.
     - [ ] Test edge cases: empty queries, duplicate queries.
     - [ ] Test exception handling: API errors, network failures.
+    - [ ] Run all tests and validate that they all pass
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - If there is a bug then edit the main logic to fix the bug
+        - If no bug is evident then fix the test
 
 ### c. Content Scraper Node
 
@@ -84,6 +87,10 @@
     - [ ] Test happy path: valid URLs return scraped content.
     - [ ] Test edge cases: invalid URLs, empty content.
     - [ ] Test exception handling: HTTP errors, parsing errors.
+    - [ ] Run all tests and validate that they all pass
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - If there is a bug then edit the main logic to fix the bug
+        - If no bug is evident then fix the test
 
 ### d. Content Summarizer Node
 
@@ -94,6 +101,9 @@
     - [ ] Test happy path: valid content returns summaries.
     - [ ] Test edge cases: empty content, irrelevant content.
     - [ ] Test exception handling: LLM errors, empty summaries.
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - If there is a bug then edit the main logic to fix the bug
+        - If no bug is evident then fix the test
 
 ### e. Report Compiler Node
 
@@ -104,6 +114,9 @@
     - [ ] Test happy path: valid summaries return report.
     - [ ] Test edge cases: empty summaries, malformed summaries.
     - [ ] Test exception handling: LLM errors, formatting errors.
+      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - If there is a bug then edit the main logic to fix the bug
+        - If no bug is evident then fix the test
 
 ---
 

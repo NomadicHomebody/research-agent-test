@@ -24,6 +24,9 @@ Before starting any development, running any code or tests -- be sure to do the 
    pip install -r requirements.txt
    ```
 
+4. **Read over `GEMINI.local.md`**
+    - Read the `GEMINI.local.md` file in this repo and adhere to the guidelines outlined exactly as you would the contents of this file
+
 ## 1. Python Coding Standards
 
 - **Leverage Modern Python:** Utilize features from Python 3.8+ where appropriate.

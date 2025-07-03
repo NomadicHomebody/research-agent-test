@@ -294,6 +294,9 @@ def compile_report_node(state: ResearchState) -> Dict[str, Any]:
 
         llm_response = call_llm([HumanMessage(content=prompt)])
         final_report = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
+        import logging
+        logging.warning(f"[compile_report_node] llm_response type: {type(llm_response)}, value: {llm_response}")
+        logging.warning(f"[compile_report_node] final_report type: {type(final_report)}, value: {final_report}")
 
         messages.append({"role": "system", "content": "Successfully compiled the final report."})
 

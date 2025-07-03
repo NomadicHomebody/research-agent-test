@@ -9,10 +9,10 @@ from research_graph import compile_report_node, ResearchState
 @pytest.fixture
 def mock_llm():
     with patch('research_graph.llm') as mock_llm_instance:
-        # The invoke_llm method should return a MagicMock that has a 'content' attribute
+        # The invoke method should return a MagicMock that has a 'content' attribute
         mock_invoke_result = MagicMock()
         mock_invoke_result.content = "This is the final report."
-        mock_llm_instance.invoke_llm.return_value = mock_invoke_result
+        mock_llm_instance.invoke.return_value = mock_invoke_result
         yield mock_llm_instance
 
 def test_compile_report_node_happy_path(mock_llm):
@@ -31,7 +31,7 @@ def test_compile_report_node_happy_path(mock_llm):
     assert result["final_report"] == "This is the final report."
     assert "Error" not in result.get("error_message", "")
     # Ensure the LLM was called
-    mock_llm.invoke_llm.assert_called_once()
+    mock_llm.invoke.assert_called_once()
 
 def test_compile_report_node_empty_summaries(mock_llm):
     """

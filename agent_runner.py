@@ -3,18 +3,19 @@ from workflow_builder import stepwise_agent
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 
-def run_agent(topic: str) -> None:
+def run_agent(topic: str, debug: bool = False) -> None:
     """
     Runs the research agent for a given topic, providing spinner and status updates.
 
     Args:
         topic: The research topic.
+        debug: If True, print debug logs to stdout.
     """
     report_path = "research_report.md"
     spinner = yaspin(Spinners.dots, text="Starting agent...")
     try:
         spinner.start()
-        for node_name, status_message, state in stepwise_agent(topic):
+        for node_name, status_message, state in stepwise_agent(topic, debug=debug):
             if node_name == "done":
                 spinner.text = "Finalizing and writing report..."
                 report = state.get("final_report", "")
@@ -33,8 +34,14 @@ def run_agent(topic: str) -> None:
         spinner.stop()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python agent_runner.py \"<your research topic>\"")
+    # Accepts: python agent_runner.py "topic string" [--debug] or python agent_runner.py --debug "topic string"
+    args = [arg for arg in sys.argv[1:] if arg.strip()]
+    debug = False
+    if "--debug" in args:
+        debug = True
+        args.remove("--debug")
+    if len(args) < 1:
+        print("Usage: python agent_runner.py \"<your research topic>\" [--debug]")
         sys.exit(1)
-    topic = sys.argv[1]
-    run_agent(topic)
+    topic = args[0]
+    run_agent(topic, debug=debug)

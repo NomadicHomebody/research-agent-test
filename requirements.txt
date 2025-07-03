@@ -6,3 +6,4 @@ beautifulsoup4
 tavily-python
 duckduckgo-search
 pytest
+yaspin

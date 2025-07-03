@@ -310,5 +310,3 @@ def compile_report_node(state: ResearchState) -> Dict[str, Any]:
             "messages": messages,
             "error_message": error_message
         }
-
-# --- End of initial scaffolding ---

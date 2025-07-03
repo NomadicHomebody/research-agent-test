@@ -122,19 +122,27 @@
 
 ## 4. Build the LangGraph Workflow
 
-- [ ] Instantiate graph:  
+- [x] Create a new file `workflow_builder.py` for storing new code
+- [x] Create new method `build_workflow` that returns a newly instanciated workflow
+- [x] Instantiate graph:  
   `workflow = StateGraph(ResearchState)`
-- [ ] Add nodes:  
+- [x] Add nodes:  
   `workflow.add_node("query_generator", generate_queries_node)`  
   (repeat for each node)
-- [ ] Add edges:  
+- [x] Add edges:  
   `workflow.add_edge("query_generator", "web_searcher")`  
   (repeat for each transition)
-- [ ] Set entry point:  
+- [x] Set entry point:  
   `workflow.set_entry_point("query_generator")`
-- [ ] Set terminal node:  
+- [x] Set terminal node:  
   `workflow.add_edge("report_compiler", END)`
-
+- [x] **Add unit tests for workflow_builder**
+  - [x] Test happy path: valid summaries return report.
+  - [x] Test edge cases: empty summaries, malformed summaries.
+  - [x] Test exception handling: LLM errors, formatting errors.
+    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+      - [x] If there is a bug then edit the main logic to fix the bug
+      - [x] If no bug is evident then fix the test
 ---
 
 ## 5. Set Up Persistence (Optional)
@@ -147,17 +155,16 @@
 
 ---
 
-## 6. Run the Graph, Display, and Save Results
+## 6. Set Up Agent Runner 
 
-- [ ] Prepare input:  
-  `inputs = {"topic": "Your research topic", "messages": [HumanMessage(content="Start research on: ...")]}`
-- [ ] Run graph:  
-  `for output_chunk in app.stream(inputs, config=config, stream_mode="values"): ...`
-- [ ] Get final state:  
-  `final_state = app.get_state(config)`
-- [ ] Save report:  
-  `with open("research_report.md", "w", encoding="utf-8") as f: f.write(final_state.values["final_report"])`
-
+- [x] Create new file `agent_runner` that streamlines the execution for running the AI agent workflow such that all it takes is an input string of the desired research topic into a method to get the AI agent to fully execute, retrieve the final state, and save the final report to a markdown file like the high level flow listed below:
+- [x] **Add unit tests for workflow_builder**
+  - [x] Test happy path: valid summaries return report.
+  - [x] Test edge cases: empty summaries, malformed summaries.
+  - [x] Test exception handling: LLM errors, formatting errors.
+    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+      - [x] If there is a bug then edit the main logic to fix the bug
+      - [x] If no bug is evident then fix the test
 ---
 
 ## Mermaid Diagram

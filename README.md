@@ -58,16 +58,16 @@ Follow these steps to set up and run the AI Research Assistant locally:
    - The final research report will be saved as `research_report.md`.
 
 ### Running Unit Tests
-To ensure the integrity and correctness of the codebase, run the unit tests.
+To ensure the integrity and correctness of the codebase, run the unit tests using `pytest`.
 
 - **To run all tests:**
   ```bash
-  python -m unittest discover test
+  pytest
   ```
 
 - **To run a specific test file:**
   ```bash
-  python -m unittest test/test_file_name.py
+  pytest test/test_file_name.py
   ```
   (Replace `test_file_name.py` with the actual name of the test file)
 

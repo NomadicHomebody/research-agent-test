@@ -63,7 +63,7 @@
         - If there is a bug then edit the main logic to fix the bug
         - If no bug is evident then fix the test
 
-### b. Web Searcher Node/q
+###`    b. Web Searcher Node/q
 - [x] Implement `web_search_node(state: ResearchState) -> Dict[str, Any]`
   - [x] Use `TavilySearchResults(max_results=3)` for each query.
   - [x] Collect and deduplicate URLs/snippets.
@@ -94,16 +94,16 @@
 
 ### d. Content Summarizer Node
 
-- [ ] Implement `summarize_content_node(state: ResearchState) -> Dict[str, Any]`
-  - [ ] For each page, prompt LLM to summarize content relevant to topic.
-  - [ ] Return `{"summaries": summaries, "messages": ...}`.
-  - [ ] **Add unit tests for Content Summarizer Node**
-    - [ ] Test happy path: valid content returns summaries.
-    - [ ] Test edge cases: empty content, irrelevant content.
-    - [ ] Test exception handling: LLM errors, empty summaries.
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - If there is a bug then edit the main logic to fix the bug
-        - If no bug is evident then fix the test
+- [x] Implement `summarize_content_node(state: ResearchState) -> Dict[str, Any]`
+  - [x] For each page, prompt LLM to summarize content relevant to topic.
+  - [x] Return `{"summaries": summaries, "messages": ...}`.
+  - [x] **Add unit tests for Content Summarizer Node**
+    - [x] Test happy path: valid content returns summaries.
+    - [x] Test edge cases: empty content, irrelevant content.
+    - [x] Test exception handling: LLM errors, empty summaries.
+      - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - [x] If there is a bug then edit the main logic to fix the bug
+        - [x] If no bug is evident then fix the test
 
 ### e. Report Compiler Node
 

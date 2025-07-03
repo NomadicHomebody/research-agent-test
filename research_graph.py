@@ -195,39 +195,70 @@ def scrape_content_node(state: ResearchState) -> Dict[str, Any]:
     }
 
 def summarize_content_node(state: ResearchState) -> Dict[str, Any]:
-# --- Example: How to run the workflow (to be completed after workflow assembly) ---
+    """
+    Summarizes the scraped content for each document based on the research topic.
+    Returns a dict with 'summaries' and updated 'messages'.
+    Handles LLM errors and cases where no content is available for summarization.
+    """
+    topic = state.get("topic", "")
+    scraped_data = state.get("scraped_data", [])
+    messages = state.get("messages", []).copy()
+    summaries = []
+    error_message = ""
+    has_errors = False
 
-# Example usage:
-# if __name__ == "__main__":
-#     topic_to_research = "The impact of AI on creative writing"
-#     config = {"configurable": {"thread_id": "research-thread-1"}}
-#     inputs = {
-#         "topic": topic_to_research,
-#         "messages": [HumanMessage(content=f"Start research on: {topic_to_research}")]
-#     }
-#     for output_chunk in app.stream(inputs, config=config, stream_mode="values"):
-#         print(output_chunk)
-#     final_state = app.get_state(config)
-#     print(final_state.values["final_report"])
-#     with open("research_report.md", "w", encoding="utf-8") as f:
-#         f.write(final_state.values["final_report"])
-# --- LangGraph workflow assembly (to be completed after node implementations) ---
+    if not scraped_data:
+        error_message = "No scraped content available to summarize."
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "summaries": [],
+            "messages": messages,
+            "error_message": error_message
+        }
 
-# Example (to be expanded in next steps):
-# workflow = StateGraph(ResearchState)
-# workflow.add_node("query_generator", generate_queries_node)
-# workflow.add_node("web_searcher", web_search_node)
-# workflow.add_node("content_scraper", scrape_content_node)
-# workflow.add_node("content_summarizer", summarize_content_node)
-# workflow.add_node("report_compiler", compile_report_node)
-# workflow.set_entry_point("query_generator")
-# workflow.add_edge("query_generator", "web_searcher")
-# workflow.add_edge("web_searcher", "content_scraper")
-# workflow.add_edge("content_scraper", "content_summarizer")
-# workflow.add_edge("content_summarizer", "report_compiler")
-# workflow.add_edge("report_compiler", END)
-    # TODO: Implement summarization logic
-    return {}
+    for item in scraped_data:
+        url = item.get("url")
+        content = item.get("content")
+
+        if not content or not content.strip():
+            messages.append({"role": "system", "content": f"Skipping summarization for {url} due to empty content."})
+            continue
+
+        try:
+            prompt = ChatPromptTemplate.from_template(
+                "Given the research topic: '{topic}' and the following content from a webpage, "
+                "please provide a concise summary that is relevant to the topic. "
+                "Focus on extracting key facts, figures, and main arguments.\n\n"
+                "Content:\n{content}"
+            ).format(topic=topic, content=content)
+
+            llm_response = call_llm([HumanMessage(content=prompt)])
+            summary = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
+            
+            if summary.strip():
+                summaries.append(summary)
+                messages.append({"role": "system", "content": f"Successfully summarized content from {url}."})
+            else:
+                messages.append({"role": "system", "content": f"LLM returned an empty summary for {url}."})
+                has_errors = True
+
+        except Exception as e:
+            messages.append({"role": "system", "content": f"Error summarizing content from {url}: {str(e)}"})
+            has_errors = True
+            continue
+
+    if not summaries and has_errors:
+        error_message = "Could not generate any summaries due to errors."
+        messages.append({"role": "system", "content": error_message})
+    elif not summaries:
+        error_message = "Could not generate any summaries from the provided content."
+        messages.append({"role": "system", "content": error_message})
+
+    return {
+        "summaries": summaries,
+        "messages": messages,
+        "error_message": error_message if not summaries else ""
+    }
 
 def compile_report_node(state: ResearchState) -> Dict[str, Any]:
     # TODO: Implement report compilation logic

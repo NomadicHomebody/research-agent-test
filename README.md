@@ -1,3 +1,42 @@
+## Project Overview
+
+The **AI Research Assistant** is an automated research agent built with [LangChain](https://python.langchain.com/) and [LangGraph](https://github.com/langchain-ai/langgraph). It takes a research topic, generates search queries, gathers and scrapes web content, summarizes findings, and compiles a structured report.
+
+**Workflow Diagram:**
+```mermaid
+flowchart TD
+    A[Input Topic] --> B[Query Generator]
+    B --> C[Web Searcher]
+    C --> D[Content Scraper]
+    D --> E[Content Summarizer]
+    E --> F[Report Compiler]
+    F --> G[Output: research_report.md]
+```
+
+**Key Features:**
+- **Automated Research Pipeline:** Topic → Queries → Web Search → Scraping → Summarization → Report.
+- **Stateful Graph Architecture:** Each step is a node in a LangGraph workflow, passing state via a `ResearchState` object.
+- **Persistence:** Supports checkpointing with SQLite for workflow recovery.
+- **Comprehensive Testing:** Each node and workflow component has dedicated unit tests.
+
+**Code Structure:**
+- [`research_graph.py`](research_graph.py:1): Core logic, state definition, node functions, and graph assembly.
+- [`workflow_builder.py`](workflow_builder.py:1): Workflow construction and configuration.
+- [`agent_runner.py`](agent_runner.py:1): High-level runner for executing the agent and saving reports.
+- [`test/`](test/): Unit tests for all components.
+- [`requirements.txt`](requirements.txt:1): Dependency list.
+- [`.env`](.env): API keys and environment variables.
+
+**APIs & Libraries Used:**
+- **LangChain**: LLM orchestration and prompt management.
+- **LangGraph**: Graph-based workflow execution.
+- **Google Gemini**: LLM for query generation and summarization.
+- **Tavily**: Web search API.
+- **BeautifulSoup**: HTML parsing and scraping.
+- **Requests**: HTTP requests for web scraping.
+- **Pytest**: Unit testing framework.
+
+For a step-by-step build guide, see [`Guide.md`](Guide.md:1).
 # AI Research Assistant
 
 ## Getting Started

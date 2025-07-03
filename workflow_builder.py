@@ -1,4 +1,5 @@
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
 from research_graph import (
     ResearchState,
     generate_queries_node,
@@ -13,8 +14,9 @@ def build_workflow():
     Builds the LangGraph workflow for the research agent.
 
     Returns:
-        A compiled LangGraph workflow.
+        A compiled LangGraph workflow with checkpointing.
     """
+    memory = MemorySaver()
     workflow = StateGraph(ResearchState)
 
     # Add nodes
@@ -32,4 +34,4 @@ def build_workflow():
     workflow.add_edge("content_summarizer", "report_compiler")
     workflow.add_edge("report_compiler", END)
 
-    return workflow.compile()
+    return workflow.compile(checkpointer=memory)

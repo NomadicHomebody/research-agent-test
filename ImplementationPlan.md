@@ -147,12 +147,18 @@
 
 ## 5. Set Up Persistence (Optional)
 
-- [ ] Add persistence:  
+- [x] Add persistence:  
   `from langgraph.checkpoint.sqlite import SqliteSaver`  
   `memory = SqliteSaver.from_conn_string(":memory:")`
-- [ ] Compile with checkpointing:  
+- [x] Compile with checkpointing:  
   `app = workflow.compile(checkpointer=memory)`
-
+- [x] **Add unit tests for new persistence logic**
+  - [x] Test happy path
+  - [x] Test edge cases
+  - [x] Test exception handling
+    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+      - [x] If there is a bug then edit the main logic to fix the bug
+      - [x] If no bug is evident then fix the test
 ---
 
 ## 6. Set Up Agent Runner 

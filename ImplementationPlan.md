@@ -173,7 +173,18 @@
       - [x] If no bug is evident then fix the test
 ---
 
-## Mermaid Diagram
+## 7. CLI Runner with Spinner and Status Updates
+
+- [x] Refactor workflow to support explicit node-by-node status yielding via `stepwise_agent` in [`workflow_builder.py`](workflow_builder.py:12)
+- [x] Replace `agent_runner.py` with CLI runner that:
+    - Accepts a topic string from the command line
+    - Uses `yaspin` spinner and updates status as each node completes
+    - Writes the markdown report to `research_report.md`
+    - Prints a final message with the report location
+- [x] Add/modify unit tests in `test/test_agent_runner.py` to cover spinner/status logic and file output
+- [x] Add `yaspin` to `requirements.txt`
+- [ ] (Optional) Run Bandit security scan
+
 
 ```mermaid
 flowchart TD

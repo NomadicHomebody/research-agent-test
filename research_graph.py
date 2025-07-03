@@ -15,11 +15,11 @@ import requests
 load_dotenv()
 
 # 2. Initialize LLM
-llm = GoogleGenerativeAI(model="gemini-1.0-pro", temperature=0)
+llm = GoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17", temperature=0)
 
 def call_llm(messages):
-    # GoogleGenerativeAI uses .invoke_llm instead of .invoke
-    return llm.invoke_llm(messages)
+    # GoogleGenerativeAI uses .invoke (not .invoke_llm)
+    return llm.invoke(messages)
 
 # 3. Define ResearchState TypedDict
 class ResearchState(TypedDict):
@@ -114,7 +114,7 @@ def web_search_node(state: ResearchState) -> Dict[str, Any]:
         search_tool = TavilySearchResults(max_results=3)
         for query in queries:
             try:
-                results = search_tool.invoke([{"query": query}])
+                results = search_tool.invoke(query)
                 all_docs.extend(results)
             except Exception as e:
                 messages.append({"role": "system", "content": f"Search failed for query '{query}': {e}"})

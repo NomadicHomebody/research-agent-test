@@ -1,28 +1,40 @@
-import uuid
-from langchain_core.messages import HumanMessage
-from workflow_builder import build_workflow
+import sys
+from workflow_builder import stepwise_agent
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
-def run_agent(topic: str):
+def run_agent(topic: str) -> None:
     """
-    Runs the research agent for a given topic.
+    Runs the research agent for a given topic, providing spinner and status updates.
 
     Args:
         topic: The research topic.
     """
-    app = build_workflow()
-    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
-    inputs = {"topic": topic, "messages": [HumanMessage(content=f"Start research on: {topic}")]}
-
-    for output_chunk in app.stream(inputs, config=config, stream_mode="values"):
-        print(f"--- Chunk ---")
-        for key, value in output_chunk.items():
-            print(f"{key}: {value}")
-
-    final_state = app.get_state(config)
-    report = final_state.values["final_report"]
-
-    with open("research_report.md", "w", encoding="utf-8") as f:
-        f.write(report)
+    report_path = "research_report.md"
+    spinner = yaspin(Spinners.dots, text="Starting agent...")
+    try:
+        spinner.start()
+        for node_name, status_message, state in stepwise_agent(topic):
+            if node_name == "done":
+                spinner.text = "Finalizing and writing report..."
+                report = state.get("final_report", "")
+                with open(report_path, "w", encoding="utf-8") as f:
+                    f.write(report)
+                spinner.ok("✅")
+                print(f"\nReport generated: {report_path}\n")
+                print(f"Open the report at: ./{report_path}")
+                break
+            else:
+                spinner.text = status_message
+    except Exception as e:
+        spinner.fail("💥")
+        print(f"\nError: {e}")
+    finally:
+        spinner.stop()
 
 if __name__ == "__main__":
-    run_agent("The impact of AI on software development")
+    if len(sys.argv) < 2:
+        print("Usage: python agent_runner.py \"<your research topic>\"")
+        sys.exit(1)
+    topic = sys.argv[1]
+    run_agent(topic)

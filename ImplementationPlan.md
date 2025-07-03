@@ -107,16 +107,16 @@
 
 ### e. Report Compiler Node
 
-- [ ] Implement `compile_report_node(state: ResearchState) -> Dict[str, Any]`
-  - [ ] Prompt LLM to synthesize summaries into a structured report.
-  - [ ] Return `{"final_report": report, "messages": ...}`.
-  - [ ] **Add unit tests for Report Compiler Node**
-    - [ ] Test happy path: valid summaries return report.
-    - [ ] Test edge cases: empty summaries, malformed summaries.
-    - [ ] Test exception handling: LLM errors, formatting errors.
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - If there is a bug then edit the main logic to fix the bug
-        - If no bug is evident then fix the test
+- [x] Implement `compile_report_node(state: ResearchState) -> Dict[str, Any]`
+  - [x] Prompt LLM to synthesize summaries into a structured report.
+  - [x] Return `{"final_report": report, "messages": ...}`.
+  - [x] **Add unit tests for Report Compiler Node**
+    - [x] Test happy path: valid summaries return report.
+    - [x] Test edge cases: empty summaries, malformed summaries.
+    - [x] Test exception handling: LLM errors, formatting errors.
+      - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
+        - [x] If there is a bug then edit the main logic to fix the bug
+        - [x] If no bug is evident then fix the test
 
 ---
 

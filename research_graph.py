@@ -261,7 +261,54 @@ def summarize_content_node(state: ResearchState) -> Dict[str, Any]:
     }
 
 def compile_report_node(state: ResearchState) -> Dict[str, Any]:
-    # TODO: Implement report compilation logic
-    return {}
+    """
+    Compiles the summaries into a final, structured research report.
+    Returns a dict with 'final_report' and updated 'messages'.
+    Handles cases where no summaries are available.
+    """
+    topic = state.get("topic", "")
+    summaries = state.get("summaries", [])
+    messages = state.get("messages", []).copy()
+    error_message = ""
+
+    if not summaries:
+        error_message = "No summaries available to compile a report."
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "final_report": "",
+            "messages": messages,
+            "error_message": error_message
+        }
+
+    try:
+        # Join summaries into a single string for the prompt
+        summaries_str = "\n\n---\n\n".join(summaries)
+
+        prompt = ChatPromptTemplate.from_template(
+            "Given the research topic: '{topic}' and the following summaries from various sources, "
+            "synthesize them into a comprehensive, well-structured, and formal research report. "
+            "The report should have a clear introduction, body, and conclusion. "
+            "Use markdown for formatting (e.g., headers, lists, bold text).\n\n"
+            "Summaries:\n{summaries}"
+        ).format(topic=topic, summaries=summaries_str)
+
+        llm_response = call_llm([HumanMessage(content=prompt)])
+        final_report = llm_response.content if hasattr(llm_response, "content") else str(llm_response)
+
+        messages.append({"role": "system", "content": "Successfully compiled the final report."})
+
+        return {
+            "final_report": final_report,
+            "messages": messages,
+            "error_message": ""
+        }
+    except Exception as e:
+        error_message = f"Error compiling the final report: {str(e)}"
+        messages.append({"role": "system", "content": error_message})
+        return {
+            "final_report": "",
+            "messages": messages,
+            "error_message": error_message
+        }
 
 # --- End of initial scaffolding ---

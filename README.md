@@ -96,6 +96,24 @@ Follow these steps to set up and run the AI Research Assistant locally:
 3. **View the Output**:
    - The final research report will be saved as `research_report.md`.
 
+### Running the AI Agent
+
+You can run the AI Research Assistant programmatically with a provided topic string using [`agent_runner.py`](agent_runner.py:1). This allows you to automate research tasks without manual input.
+
+**Example usage:**
+```python
+from agent_runner import run_agent
+
+# Replace with your desired research topic
+topic = "Recent advances in quantum computing"
+final_state = run_agent(topic)
+
+# The final report will be saved as 'research_report.md'
+print("Research complete. Report saved.")
+```
+
+- The `run_agent` function handles the full workflow: query generation, web search, scraping, summarization, and report compilation.
+- Ensure your `.env` file is configured with valid API keys before running the agent.
 ### Running Unit Tests
 To ensure the integrity and correctness of the codebase, run the unit tests using `pytest`.
 

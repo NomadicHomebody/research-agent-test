@@ -185,6 +185,35 @@
 - [x] Add `yaspin` to `requirements.txt`
 - [ ] (Optional) Run Bandit security scan
 
+## 8. Add UI Wrapper for Agent AI
+
+- [ ] Research best implementation stratgies for leveraging the Kivy library for implementing UIs with the following features:
+  - Clean and modern looking UI
+  - Takes in text input
+  - Has buttons for submitting text, emptying the text input box, saving the resulting output file to a desired location
+  - Displays status updates
+  - Displays the resulting markdown file in its "pretty" state in a window beside the text input
+  - Re-sizable window with UI that automatically adjusts to best fit the window size
+  - Dynamic background that changes the color based on the location of the mouse
+- [ ] Develop Implementation plan based on research results and update this step with a clear plan for implementing a UI that meets the following requirements:
+  - Clean, cohesive and modern looking UI with sleek labeling for inputs, buttons, windows with the following layout:
+    - Input box for research topic in the left half of the window that takes up around 3/5ths of the vertical space of the window (when factoring in proper padding for everything)
+    - a SVG logo in the bottom left corner of the GUI of a magnifying glass with the letters `AI` in it and the words `AI Research Agent` centered under it
+    - Should take up about 1/5th of the vertical space of the window (when factoring in proper padding for everything)
+    - Has buttons for submitting text, emptying the text input box, saving the resulting output file to a desired location that are all represented by nice SVG icons
+      - Should be in the left half of the screen above the SVG logo and below the input text box for the topic
+      - Should take up about 1/5th of the vertical space of the window (when factoring in proper padding for everything)
+    - Bottom right corner has a status window that displays icons and text informing the user of the status of the AI reserch agent while running/inactive
+      - Sould be on the right half of the screen and take up about 1/6th of the vertical space of the window (when factoring in proper padding for everything)
+    - Displays the resulting markdown file in its "pretty" state in a window beside the text input
+      - Sould be on the right half of the screen and take up about 5/6ths of the vertical space of the window (when factoring in proper padding for everything)
+  - Re-sizable window with UI that automatically adjusts to best fit the window size
+  - Dynamic background that changes the color based on the location of the mouse
+  - All elements in GUI should be spaced evenly with logical centering in mind
+  - Color theme should be a mix or dark and light colors with clean gradients (black, grey, blue, white, green)
+  - Font, texts, outputs and icons should all be clear, easy to read and placed in sensible locations within the window space
+  - Unit tests are implemented for all the new code required for the GUI
+  - GUI code can be written in a single or multiple files (whatever makes logical sense for maintaining organized code structure)
 
 ```mermaid
 flowchart TD

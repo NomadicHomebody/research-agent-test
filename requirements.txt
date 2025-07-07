@@ -7,3 +7,6 @@ tavily-python
 duckduckgo-search
 pytest
 yaspin
+kivy
+kivymd
+markdown-it-py

@@ -187,33 +187,73 @@
 
 ## 8. Add UI Wrapper for Agent AI
 
-- [ ] Research best implementation stratgies for leveraging the Kivy library for implementing UIs with the following features:
-  - Clean and modern looking UI
-  - Takes in text input
-  - Has buttons for submitting text, emptying the text input box, saving the resulting output file to a desired location
-  - Displays status updates
-  - Displays the resulting markdown file in its "pretty" state in a window beside the text input
-  - Re-sizable window with UI that automatically adjusts to best fit the window size
-  - Dynamic background that changes the color based on the location of the mouse
-- [ ] Develop Implementation plan based on research results and update this step with a clear plan for implementing a UI that meets the following requirements:
-  - Clean, cohesive and modern looking UI with sleek labeling for inputs, buttons, windows with the following layout:
-    - Input box for research topic in the left half of the window that takes up around 3/5ths of the vertical space of the window (when factoring in proper padding for everything)
-    - a SVG logo in the bottom left corner of the GUI of a magnifying glass with the letters `AI` in it and the words `AI Research Agent` centered under it
-    - Should take up about 1/5th of the vertical space of the window (when factoring in proper padding for everything)
-    - Has buttons for submitting text, emptying the text input box, saving the resulting output file to a desired location that are all represented by nice SVG icons
-      - Should be in the left half of the screen above the SVG logo and below the input text box for the topic
-      - Should take up about 1/5th of the vertical space of the window (when factoring in proper padding for everything)
-    - Bottom right corner has a status window that displays icons and text informing the user of the status of the AI reserch agent while running/inactive
-      - Sould be on the right half of the screen and take up about 1/6th of the vertical space of the window (when factoring in proper padding for everything)
-    - Displays the resulting markdown file in its "pretty" state in a window beside the text input
-      - Sould be on the right half of the screen and take up about 5/6ths of the vertical space of the window (when factoring in proper padding for everything)
-  - Re-sizable window with UI that automatically adjusts to best fit the window size
-  - Dynamic background that changes the color based on the location of the mouse
-  - All elements in GUI should be spaced evenly with logical centering in mind
-  - Color theme should be a mix or dark and light colors with clean gradients (black, grey, blue, white, green)
-  - Font, texts, outputs and icons should all be clear, easy to read and placed in sensible locations within the window space
-  - Unit tests are implemented for all the new code required for the GUI
-  - GUI code can be written in a single or multiple files (whatever makes logical sense for maintaining organized code structure)
+- [ ] **Kivy GUI Implementation Plan**
+  - **Research & Design**
+    - Research Kivy best practices for:
+      - Responsive layouts (`BoxLayout`, `GridLayout`, `FloatLayout`)
+      - SVG icon integration (`kivy.garden.svg`)
+      - Markdown rendering (`kivy-markdown` or custom widget)
+      - Dynamic backgrounds (Canvas, mouse event bindings)
+      - Theming and modern UI design in Kivy
+      - Unit testing Kivy apps (`pytest`, `kivy.tests`)
+  - **File Structure**
+    - `gui/`
+      - `main.py` — Entry point for the Kivy app
+      - `ui.kv` — Kivy language file for layout and styling
+      - `widgets/`
+        - `markdown_viewer.py` — Custom widget for rendering markdown
+        - `status_panel.py` — Widget for status updates
+        - `dynamic_background.py` — Widget for dynamic background
+      - `assets/`
+        - `logo.svg` — Magnifying glass AI logo
+        - `icons/` — SVG icons for buttons
+      - `tests/`
+        - `test_main.py` — Unit tests for main app logic
+        - `test_widgets.py` — Unit tests for custom widgets
+  - **Core Features & Implementation Steps**
+    - UI Layout & Responsiveness:
+      - Use `BoxLayout` and `GridLayout` for main window split (left: input, right: output).
+      - Ensure all elements resize and reposition gracefully.
+      - Use `size_hint` and `padding` for proportional sizing.
+    - Input & Controls:
+      - TextInput for research topic (left panel, 3/5 vertical space).
+      - Buttons (SVG icons) for: Submit, Clear input, Save output.
+      - Place buttons above logo, below input.
+    - Logo & Branding:
+      - Bottom left: SVG logo (`logo.svg`) with "AI Research Agent" label centered below.
+    - Status Panel:
+      - Bottom right: Status window with icon and text, updates as agent runs.
+    - Markdown Output:
+      - Right panel: Markdown rendered prettily (5/6 vertical space).
+      - Use or extend a markdown widget for Kivy.
+    - Dynamic Background:
+      - Implement background color changes based on mouse position using Canvas and event bindings.
+    - Theming & Styling:
+      - Apply a dark/light gradient theme with accent colors (black, grey, blue, white, green).
+      - Use clear, modern fonts and logical spacing.
+    - Unit Testing:
+      - Use `pytest` and Kivy's testing utilities.
+      - Test: Widget rendering and resizing, button actions and state changes, markdown rendering, dynamic background behavior, error handling and edge cases.
+  - **Integration**
+    - Connect GUI to agent runner (call agent with input, update status, display output).
+    - Ensure file saving dialog works cross-platform.
+  - **Documentation**
+    - Add docstrings and comments per project standards.
+    - Update this plan as implementation progresses.
+  - **Mermaid Diagram**
+
+    ```mermaid
+    flowchart LR
+        A[User Input Box] -->|Submit| B[Agent Runner]
+        B -->|Status Updates| C[Status Panel]
+        B -->|Markdown Output| D[Markdown Viewer]
+        A -->|Clear| A
+        D -->|Save| E[File Dialog]
+        F[Dynamic Background] -.-> A
+        F -.-> D
+        F -.-> C
+        G[SVG Logo & Branding] -.-> A
+    ```
 
 ```mermaid
 flowchart TD
@@ -223,3 +263,4 @@ flowchart TD
     D --> E[Content Summarizer]
     E --> F[Report Compiler]
     F --> G[Output: research_report.md]
+```

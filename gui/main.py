@@ -13,10 +13,12 @@ This GUI provides:
 See ImplementationPlan.md section 8 for full requirements.
 """
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
+import threading
+import os
 
 # Register custom widgets for KV loading
 from .widgets.dynamic_background import DynamicBackground
@@ -86,15 +88,10 @@ KV = '''
         padding: 20
         spacing: 10
 
-        # MarkdownViewer:
-        Label:
-            id: markdown_output
-            text: "Markdown output will appear here."
-            font_size: 16
+        MarkdownViewer:
+            id: markdown_viewer
+            markdown_text: "Markdown output will appear here."
             size_hint_y: 0.8
-            text_size: self.width, None
-            halign: 'left'
-            valign: 'top'
 
         # StatusPanel:
         Label:
@@ -109,7 +106,7 @@ KV = '''
 class MainLayout(BoxLayout):
     pass
 
-class ResearchAgentApp(App):
+class ResearchAgentApp(MDApp):
     def build(self):
         print("DEBUG: Entered ResearchAgentApp.build()")
         print("DEBUG: KV string length:", len(KV))
@@ -117,20 +114,83 @@ class ResearchAgentApp(App):
         Builder.load_string(KV)
         return MainLayout()
 
+    def load_markdown_report(self):
+        """
+        Loads the contents of research_report.md and sets it to the MarkdownViewer.
+        Displays a user-friendly error if the file is missing or unreadable.
+        """
+        viewer = self.root.ids.markdown_viewer
+        try:
+            with open("research_report.md", "r", encoding="utf-8") as f:
+                content = f.read()
+            if not content.strip():
+                raise ValueError("Markdown file is empty.")
+            viewer.markdown_text = content
+        except FileNotFoundError:
+            viewer.markdown_text = "[Error] research_report.md not found."
+        except Exception as e:
+            viewer.markdown_text = f"[Error] Could not load markdown: {str(e)}"
+
     def on_submit(self):
-        # TODO: Integrate with agent runner and update markdown_output/status_panel
+        topic = self.root.ids.topic_input.text.strip()
+        if not topic:
+            self.root.ids.status_panel.text = "Status: Please enter a research topic."
+            return
+
         self.root.ids.status_panel.text = "Status: Running..."
-        # Placeholder for agent execution
-        self.root.ids.markdown_output.text = "Running agent... (output will appear here)"
+        self.root.ids.markdown_viewer.markdown_text = "Running agent... (output will appear here)"
+
+        def run_and_update():
+            try:
+                from agent_runner import run_agent
+                run_agent(topic)
+                if not os.path.exists("research_report.md"):
+                    self.root.ids.status_panel.text = "Status: Error - research_report.md not found."
+                    self.root.ids.markdown_viewer.markdown_text = "[Error] research_report.md not found."
+                    return
+                self.load_markdown_report()
+                self.root.ids.status_panel.text = "Status: Complete"
+            except Exception as e:
+                self.root.ids.status_panel.text = f"Status: Error - {str(e)}"
+                self.root.ids.markdown_viewer.markdown_text = f"[Error] Agent failed: {str(e)}"
+
+        threading.Thread(target=run_and_update, daemon=True).start()
 
     def on_clear(self):
         self.root.ids.topic_input.text = ""
-        self.root.ids.markdown_output.text = ""
+        self.root.ids.markdown_viewer.markdown_text = ""
         self.root.ids.status_panel.text = "Status: Idle"
 
     def on_save(self):
-        # TODO: Implement file save dialog and save markdown_output.text
-        self.root.ids.status_panel.text = "Status: Save feature not yet implemented"
+        """
+        Opens a file save dialog and saves the current markdown report to the selected file.
+        Provides user feedback via the status panel.
+        """
+        try:
+            from kivy import platform
+            if platform == "android":
+                # On Android, filechooser is not available; show error
+                self.root.ids.status_panel.text = "Status: Save not supported on Android."
+                return
+            from plyer import filechooser
+        except ImportError:
+            self.root.ids.status_panel.text = "Status: Save feature requires 'plyer' package."
+            return
+
+        def save_callback(selection):
+            if not selection or not selection[0]:
+                self.root.ids.status_panel.text = "Status: Save cancelled."
+                return
+            filepath = selection[0]
+            text = self.root.ids.markdown_viewer.markdown_text
+            try:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(text)
+                self.root.ids.status_panel.text = f"Status: Saved to {os.path.basename(filepath)}"
+            except Exception as e:
+                self.root.ids.status_panel.text = f"Status: Error saving file - {str(e)}"
+
+        filechooser.save_file(title="Save Markdown Report", filters=[("Markdown files", "*.md"), ("All files", "*")], on_selection=save_callback)
 
 if __name__ == "__main__":
     ResearchAgentApp().run()

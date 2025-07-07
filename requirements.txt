@@ -10,3 +10,5 @@ yaspin
 kivy
 kivymd
 markdown-it-py
+kivy-garden
+markdown

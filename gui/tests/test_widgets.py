@@ -18,27 +18,30 @@ from gui.widgets.dynamic_background import DynamicBackground
 
 # --- Patch: Provide a minimal MDApp context for KivyMD widgets ---
 from kivymd.app import MDApp
-
-class DummyMDApp(MDApp):
-    def build(self):
-        return None
-
-@pytest.fixture(scope="module", autouse=True)
-def setup_kivy():
-    EventLoop.ensure_window()
-    if not MDApp.get_running_app():
-        DummyMDApp().run()  # Start and immediately stop a dummy MDApp
+# The MDApp context is provided by the session-scoped fixture in conftest.py
 
 def test_markdown_viewer_initializes():
-    # Skip test if kivy_garden.markdown is not installed (avoids KivyMD fallback error)
-    from gui.widgets.markdown_viewer import MarkdownLabel
-    import pytest
-    if MarkdownLabel is None:
-        pytest.skip("kivy_garden.markdown not installed; skipping MarkdownViewer test.")
-    widget = MarkdownViewer()
-    assert hasattr(widget, "markdown_text")
-    # Should have at least one child (the markdown label or fallback)
-    assert len(widget.children) > 0
+    viewer = MarkdownViewer()
+    assert hasattr(viewer, "markdown_text")
+    assert hasattr(viewer, "markdown_widget")
+    assert len(viewer.children) > 0
+
+def test_markdown_viewer_empty_markdown():
+    viewer = MarkdownViewer()
+    viewer.markdown_text = ""
+    assert viewer.markdown_widget.text == ""
+
+def test_markdown_viewer_malformed_markdown():
+    viewer = MarkdownViewer()
+    malformed = "# Header\n\n*Unclosed italics\n\n- List item\n- Another"
+    viewer.markdown_text = malformed
+    assert viewer.markdown_widget.text == malformed
+
+def test_markdown_viewer_large_markdown():
+    viewer = MarkdownViewer()
+    large_md = "# Title\n" + "\n".join([f"- Item {i}" for i in range(1000)])
+    viewer.markdown_text = large_md
+    assert "Item 999" in viewer.markdown_widget.text
 
 def test_status_panel_updates():
     panel = StatusPanel()

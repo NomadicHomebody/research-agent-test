@@ -7,12 +7,8 @@ This widget will be used to display the research report in a "pretty" state.
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 
-try:
-    from kivymd.uix.label import MDLabel
-    from kivymd.uix.card import MDCard
-    from kivy_garden.markdown import MarkdownLabel
-except ImportError:
-    MarkdownLabel = None  # Placeholder if not installed
+import markdown
+from kivy.uix.label import Label
 
 class MarkdownViewer(BoxLayout):
     markdown_text = StringProperty("")
@@ -20,14 +16,14 @@ class MarkdownViewer(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
-        if MarkdownLabel:
-            self.markdown_widget = MarkdownLabel(text=self.markdown_text)
-            self.add_widget(self.markdown_widget)
-        else:
-            self.add_widget(
-                MDLabel(text="Markdown rendering not available. Install kivy_garden.markdown.", halign="left")
-            )
+        self.markdown_widget = Label(text=self.markdown_text, halign="left", valign="top")
+        self.markdown_widget.bind(size=self._update_text_size)
+        self.add_widget(self.markdown_widget)
+
+    def _update_text_size(self, instance, value):
+        self.markdown_widget.text_size = (self.markdown_widget.width, None)
 
     def on_markdown_text(self, instance, value):
-        if MarkdownLabel:
-            self.markdown_widget.text = value
+        # Render markdown as plain text (or optionally as HTML if a widget is available)
+        # For now, just display the raw markdown
+        self.markdown_widget.text = value

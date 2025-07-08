@@ -195,16 +195,46 @@ def test_markdown_viewer_large_markdown():
 
 def test_status_panel_updates():
     panel = StatusPanel()
+    # Initial state
     assert panel.status_text == "Status: Idle"
+    assert panel.label.text == "Status: Idle"
+
+    # Flat status update (backward compatible)
     panel.set_status("Status: Running")
     assert panel.status_text == "Status: Running"
-    # Check label text and color
-    assert hasattr(panel, "label")
     assert panel.label.text == "Status: Running"
-    # Use set_status and status_text for further updates
+
+    # Node-level status update
+    panel.set_status(
+        text="Generating search queries...",
+        node_name="query_generator",
+        current_step=1,
+        total_steps=5
+    )
+    assert panel.status_text == "Generating search queries..."
+    assert panel.node_name == "query_generator"
+    assert panel.current_step == 1
+    assert panel.total_steps == 5
+    assert panel.label.text.startswith("Step 1/5: query_generator — Generating search queries...")
+
+    # Update to next node
+    panel.set_status(
+        text="Performing web search...",
+        node_name="web_searcher",
+        current_step=2,
+        total_steps=5
+    )
+    assert panel.label.text.startswith("Step 2/5: web_searcher — Performing web search...")
+
+    # Only update message, keep node/progress
+    panel.set_status(text="Still searching...")
+    assert "Still searching..." in panel.label.text
+
+    # Use set_status and status_text for further updates (legacy)
     panel.set_status("Status: Complete")
     assert panel.status_text == "Status: Complete"
     assert panel.label.text == "Status: Complete"
+
     # Dark blue color
     assert tuple(panel.label.color) == (0, 0.12, 0.3, 1)
     # Check background color via canvas

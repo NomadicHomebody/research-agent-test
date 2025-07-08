@@ -267,7 +267,20 @@ class ResearchAgentApp(MDApp):
             """
             try:
                 from agent_runner import run_agent
-                run_agent(topic)
+                from agent_runner import run_agent
+                from kivy.clock import Clock
+
+                def status_callback(node_name, status_message, current_step, total_steps):
+                    def update_status_panel(dt):
+                        status_panel.set_status(
+                            text=status_message,
+                            node_name=node_name,
+                            current_step=current_step,
+                            total_steps=total_steps
+                        )
+                    Clock.schedule_once(update_status_panel)
+
+                run_agent(topic, status_callback=status_callback)
                 if not os.path.exists("research_report.md"):
                     Clock.schedule_once(lambda dt: update_status("Status: Error - research_report.md not found."))
                     Clock.schedule_once(lambda dt: update_markdown("[Error] research_report.md not found."))

@@ -3,7 +3,7 @@ StatusPanel widget for displaying agent status and icons in the Kivy GUI.
 """
 
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, NumericProperty
 
 class StatusPanel(BoxLayout):
     """
@@ -17,6 +17,10 @@ class StatusPanel(BoxLayout):
     """
 
     status_text = StringProperty("Status: Idle")
+    node_name = StringProperty("")
+    progress = NumericProperty(0.0)
+    total_steps = NumericProperty(0)
+    current_step = NumericProperty(0)
 
     def __init__(self, **kwargs):
         """
@@ -34,7 +38,7 @@ class StatusPanel(BoxLayout):
 
         from kivy.uix.label import Label
         self.label = Label(
-            text=self.status_text,
+            text=self._compose_status_text(),
             color=(0, 0.12, 0.3, 1),
             font_size=16,
             halign='left',
@@ -46,6 +50,10 @@ class StatusPanel(BoxLayout):
 
         # Bind status_text property to label text
         self.bind(status_text=self._on_status_text)
+        self.bind(node_name=self._on_status_update)
+        self.bind(progress=self._on_status_update)
+        self.bind(current_step=self._on_status_update)
+        self.bind(total_steps=self._on_status_update)
 
         # Add canvas background for light grey
         with self.canvas.before:
@@ -56,7 +64,20 @@ class StatusPanel(BoxLayout):
 
     def _on_status_text(self, instance, value):
         """Update label text when status_text changes."""
-        self.label.text = value
+        self.label.text = self._compose_status_text()
+
+    def _on_status_update(self, instance, value):
+        """Update label text when any status property changes."""
+        self.label.text = self._compose_status_text()
+
+    def _compose_status_text(self) -> str:
+        """Compose the full status text for display."""
+        if self.node_name and self.total_steps > 0:
+            return f"Step {self.current_step}/{self.total_steps}: {self.node_name} — {self.status_text}"
+        elif self.node_name:
+            return f"{self.node_name}: {self.status_text}"
+        else:
+            return self.status_text
 
     def _update_label_text_size(self, instance, value):
         """Ensure label text wraps and fills available space."""
@@ -67,11 +88,35 @@ class StatusPanel(BoxLayout):
         self._bg_rect.pos = self.pos
         self._bg_rect.size = self.size
 
-    def set_status(self, text: str):
+    def set_status(self, text: str = None, node_name: str = None, current_step: int = None, total_steps: int = None):
         """
-        Update the status text.
+        Update the status panel with node-level details.
 
         Args:
             text (str): The new status message.
+            node_name (str): The current node name.
+            current_step (int): The current step number.
+            total_steps (int): The total number of steps.
         """
-        self.status_text = text
+        # Legacy mode: if only text is provided, reset node/progress
+        if (
+            text is not None
+            and node_name is None
+            and current_step is None
+            and total_steps is None
+        ):
+            self.status_text = text
+            self.node_name = ""
+            self.current_step = 0
+            self.total_steps = 0
+        else:
+            if text is not None:
+                self.status_text = text
+            if node_name is not None:
+                self.node_name = node_name
+            if current_step is not None:
+                self.current_step = current_step
+            if total_steps is not None:
+                self.total_steps = total_steps
+        # Compose label text
+        self.label.text = self._compose_status_text()

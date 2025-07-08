@@ -8,6 +8,7 @@ from agent_runner import run_agent
 @patch('agent_runner.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('yaspin.yaspin', autospec=True)
+@pytest.mark.slow
 def test_run_agent_with_spinner(mock_yaspin, mock_open_func, mock_stepwise_agent):
     """
     Tests the agent runner to ensure it executes the workflow, updates spinner, and saves the report.
@@ -24,10 +25,18 @@ def test_run_agent_with_spinner(mock_yaspin, mock_open_func, mock_stepwise_agent
         ("done", "Report generated.", {"final_report": "Report content"})
     ])
 
-    run_agent("Test Topic")
+    run_agent("Test Topic", status_callback=None)
 
-    text_assignments = [call for call in mock_spinner.method_calls if call[0] == '__setattr__' and call[1][0] == 'text']
-    assert any("Finalizing and writing report..." in str(call[1][1]) for call in text_assignments) or True
+    # Robustly check that spinner.text was set to "Finalizing and writing report..."
+    found_finalizing = False
+    for call in mock_spinner.method_calls:
+        if call[0] == '__setattr__' and call[1][0] == 'text' and "Finalizing and writing report..." in str(call[1][1]):
+            found_finalizing = True
+    # Also check direct attribute assignment if MagicMock supports it
+    if hasattr(mock_spinner, "text"):
+        if "Finalizing and writing report..." in str(mock_spinner.text):
+            found_finalizing = True
+    assert found_finalizing, "spinner.text was not set to 'Finalizing and writing report...'"
     assert mock_spinner.ok.call_count >= 0
     assert mock_spinner.stop.call_count >= 0
     mock_open_func.assert_called_once_with("research_report.md", "w", encoding="utf-8")
@@ -53,7 +62,7 @@ def test_run_agent_with_debug_flag_true(mock_yaspin, mock_open_func, mock_stepwi
     mock_stepwise_agent.side_effect = fake_stepwise_agent
 
     with patch("builtins.print") as mock_print:
-        run_agent("Test Topic", debug=True)
+        run_agent("Test Topic", debug=True, status_callback=None)
         debug_calls = [call for call in mock_print.call_args_list if "[DEBUG]" in str(call)]
         assert debug_calls, "No debug output was printed when debug=True"
 
@@ -72,6 +81,6 @@ def test_run_agent_with_debug_flag_false(mock_yaspin, mock_open_func, mock_stepw
         ("done", "Report generated.", {"final_report": "Report content"})
     ])
 
-    run_agent("Test Topic", debug=False)
+    run_agent("Test Topic", debug=False, status_callback=None)
     captured = capsys.readouterr()
     assert "[DEBUG]" not in captured.out

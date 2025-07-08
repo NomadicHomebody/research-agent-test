@@ -23,3 +23,31 @@ def mdapp_context():
         app._run_prepare()
         # Monkeypatch App.get_running_app to always return this MDApp
         MDApp.get_running_app = staticmethod(lambda: app)
+
+# --- GLOBAL MOCKING OF EXTERNAL CALLS ---
+
+from unittest.mock import MagicMock, patch
+
+@pytest.fixture(autouse=True)
+def mock_external_calls(monkeypatch):
+    # Mock requests.get and requests.post
+    import requests
+    monkeypatch.setattr(requests, "get", MagicMock(return_value=MagicMock(status_code=200, content=b"mocked")))
+    monkeypatch.setattr(requests, "post", MagicMock(return_value=MagicMock(status_code=200, content=b"mocked")))
+
+    # Mock TavilySearchResults
+    try:
+        import research_graph
+        monkeypatch.setattr(research_graph, "TavilySearchResults", MagicMock())
+    except ImportError:
+        pass
+
+    # Mock GoogleGenerativeAI
+    try:
+        import langchain_google_genai
+        monkeypatch.setattr(langchain_google_genai, "GoogleGenerativeAI", MagicMock())
+    except ImportError:
+        pass
+
+    # Mock any other LLM/toolkit classes as needed
+    # Add more mocks here if new external dependencies are added

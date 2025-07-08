@@ -76,12 +76,20 @@ class MarkdownViewer(BoxLayout):
         html = markdown.markdown(md_text, extensions=["fenced_code", "tables"])
         # Simple HTML to Kivy markup conversion (limited)
         import re
+        from kivy.core.text import LabelBase
+
+        # Check if RobotoMono is registered
+        roboto_mono_registered = "RobotoMono" in LabelBase._fonts
+
         # Bold
         html = re.sub(r'<strong>(.*?)</strong>', r'[b]\1[/b]', html)
         # Italic
         html = re.sub(r'<em>(.*?)</em>', r'[i]\1[/i]', html)
-        # Code blocks
-        html = re.sub(r'<code>(.*?)</code>', r'[font=RobotoMono][color=#222222]\1[/color][/font]', html, flags=re.DOTALL)
+        # Code blocks with fallback
+        if roboto_mono_registered:
+            html = re.sub(r'<code>(.*?)</code>', r'[font=RobotoMono][color=#222222]\1[/color][/font]', html, flags=re.DOTALL)
+        else:
+            html = re.sub(r'<code>(.*?)</code>', r'[color=#222222]\1[/color]', html, flags=re.DOTALL)
         # Lists
         html = re.sub(r'<li>(.*?)</li>', r'• \1', html)
         # Remove other HTML tags

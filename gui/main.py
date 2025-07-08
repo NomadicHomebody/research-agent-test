@@ -17,8 +17,15 @@ from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
+from kivy.core.text import LabelBase
 import threading
 import os
+
+# Register RobotoMono font for code blocks
+try:
+    LabelBase.register(name="RobotoMono", fn_regular=os.path.join(os.path.dirname(__file__), "assets", "RobotoMono.ttf"))
+except Exception as e:
+    print(f"WARNING: Could not register RobotoMono.ttf: {e}")
 
 # Register custom widgets for KV loading
 from gui.widgets.dynamic_background import DynamicBackground

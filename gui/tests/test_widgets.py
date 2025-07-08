@@ -201,6 +201,10 @@ def test_status_panel_updates():
     # Check label text and color
     assert hasattr(panel, "label")
     assert panel.label.text == "Status: Running"
+    # Use set_status and status_text for further updates
+    panel.set_status("Status: Complete")
+    assert panel.status_text == "Status: Complete"
+    assert panel.label.text == "Status: Complete"
     # Dark blue color
     assert tuple(panel.label.color) == (0, 0.12, 0.3, 1)
     # Check background color via canvas

@@ -161,40 +161,40 @@ class ResearchAgentApp(MDApp):
             from kivy import platform
             print(f"DEBUG: platform={platform}")
             if platform == "android":
-                self.root.ids.status_panel.text = "Status: Load not supported on Android."
+                self.root.ids.status_panel.set_status("Status: Load not supported on Android.")
                 print("DEBUG: Android platform detected, aborting load")
                 return
             from plyer import filechooser
             print("DEBUG: plyer.filechooser import succeeded")
         except ImportError as e:
-            self.root.ids.status_panel.text = "Status: Load feature requires 'plyer' package."
+            self.root.ids.status_panel.set_status("Status: Load feature requires 'plyer' package.")
             print(f"DEBUG: ImportError in on_load: {e}")
             return
 
         def load_callback(selection):
             print(f"DEBUG: load_callback called with selection={selection}")
             if not selection or not selection[0]:
-                self.root.ids.status_panel.text = "Status: Load cancelled."
+                self.root.ids.status_panel.set_status("Status: Load cancelled.")
                 print("DEBUG: No file selected or selection empty")
                 return
             filepath = selection[0]
             print(f"DEBUG: File selected: {filepath}")
             if not filepath.lower().endswith(".md"):
-                self.root.ids.status_panel.text = "Status: Please select a .md file."
+                self.root.ids.status_panel.set_status("Status: Please select a .md file.")
                 print("DEBUG: Non-md file selected")
                 return
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
                 if not content.strip():
-                    self.root.ids.status_panel.text = "Status: Selected file is empty."
+                    self.root.ids.status_panel.set_status("Status: Selected file is empty.")
                     print("DEBUG: Selected file is empty")
                     return
                 self.root.ids.markdown_viewer.markdown_text = content
-                self.root.ids.status_panel.text = f"Status: Loaded {os.path.basename(filepath)}"
+                self.root.ids.status_panel.set_status(f"Status: Loaded {os.path.basename(filepath)}")
                 print("DEBUG: Markdown loaded and displayed")
             except Exception as e:
-                self.root.ids.status_panel.text = f"Status: Error loading file - {str(e)}"
+                self.root.ids.status_panel.set_status(f"Status: Error loading file - {str(e)}")
                 print(f"DEBUG: Exception loading file: {e}")
 
         print("DEBUG: Calling filechooser.open_file")
@@ -225,34 +225,71 @@ class ResearchAgentApp(MDApp):
             viewer.markdown_text = f"[Error] Could not load markdown: {str(e)}"
 
     def on_submit(self):
+        """
+        Handles the submit button click.
+
+        Runs the agent in a background thread using threading.Thread.
+        All UI updates (status panel and markdown viewer) are scheduled on the main thread
+        using Kivy's Clock.schedule_once to ensure thread safety.
+
+        Status transitions:
+            - Idle → Running... (immediately on submit)
+            - Running... → Complete (on success)
+            - Running... → Error (on exception or missing output)
+
+        Any exceptions in the agent thread are caught and reported to the UI.
+        """
+        from kivy.clock import Clock, mainthread
+
         topic = self.root.ids.topic_input.text.strip()
+        status_panel = self.root.ids.status_panel
+        markdown_viewer = self.root.ids.markdown_viewer
+
         if not topic:
-            self.root.ids.status_panel.text = "Status: Please enter a research topic."
+            status_panel.set_status("Status: Please enter a research topic.")
             return
 
-        self.root.ids.status_panel.text = "Status: Running..."
-        self.root.ids.markdown_viewer.markdown_text = "Running agent... (output will appear here)"
+        status_panel.set_status("Status: Running...")
+        markdown_viewer.markdown_text = "Running agent... (output will appear here)"
+
+        def update_status(text):
+            """Schedule status update on main thread."""
+            status_panel.set_status(text)
+
+        def update_markdown(text):
+            """Schedule markdown update on main thread."""
+            markdown_viewer.markdown_text = text
 
         def run_and_update():
+            """
+            Worker thread target for agent execution.
+            All UI updates are scheduled on the main thread.
+            """
             try:
                 from agent_runner import run_agent
                 run_agent(topic)
                 if not os.path.exists("research_report.md"):
-                    self.root.ids.status_panel.text = "Status: Error - research_report.md not found."
-                    self.root.ids.markdown_viewer.markdown_text = "[Error] research_report.md not found."
+                    Clock.schedule_once(lambda dt: update_status("Status: Error - research_report.md not found."))
+                    Clock.schedule_once(lambda dt: update_markdown("[Error] research_report.md not found."))
                     return
-                self.load_markdown_report()
-                self.root.ids.status_panel.text = "Status: Complete"
+                # Load markdown and update status on main thread
+                def finish_success(dt):
+                    self.load_markdown_report()
+                    status_panel.set_status("Status: Complete")
+                Clock.schedule_once(finish_success)
             except Exception as e:
-                self.root.ids.status_panel.text = f"Status: Error - {str(e)}"
-                self.root.ids.markdown_viewer.markdown_text = f"[Error] Agent failed: {str(e)}"
+                Clock.schedule_once(lambda dt: update_status(f"Status: Error - {str(e)}"))
+                Clock.schedule_once(lambda dt: update_markdown(f"[Error] Agent failed: {str(e)}"))
 
         threading.Thread(target=run_and_update, daemon=True).start()
 
     def on_clear(self):
+        """
+        Clears the input, output, and resets the status panel.
+        """
         self.root.ids.topic_input.text = ""
         self.root.ids.markdown_viewer.markdown_text = ""
-        self.root.ids.status_panel.text = "Status: Idle"
+        self.root.ids.status_panel.set_status("Status: Idle")
 
     def on_save(self):
         """

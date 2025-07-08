@@ -102,12 +102,12 @@ def test_clear_button(app):
     root = app.build()
     root.ids.topic_input.text = "Test topic"
     root.ids.markdown_viewer.markdown_text = "Some output"
-    root.ids.status_panel.text = "Status: Running"
+    root.ids.status_panel.set_status("Status: Running")
     app.root = root  # Patch: set app.root for handler to work
     app.on_clear()
     assert root.ids.topic_input.text == ""
     assert root.ids.markdown_viewer.markdown_text == ""
-    assert root.ids.status_panel.text == "Status: Idle"
+    assert root.ids.status_panel.status_text == "Status: Idle"
 import io
 import tempfile
 from unittest import mock
@@ -163,7 +163,7 @@ def test_on_load_success(app, tmp_path):
         with mock.patch("builtins.open", mock.mock_open(read_data=md_content)):
             app.on_load()
             assert app.root.ids.markdown_viewer.markdown_text == md_content
-            assert "Loaded" in app.root.ids.status_panel.text or "Loaded" in app.root.ids.markdown_viewer.markdown_text
+            assert "Loaded" in app.root.ids.status_panel.status_text or "Loaded" in app.root.ids.markdown_viewer.markdown_text
 
 def test_on_load_cancel(app):
     app.root = app.build()
@@ -175,7 +175,7 @@ def test_on_load_cancel(app):
     mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
     with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
         app.on_load()
-        assert "Load cancelled" in app.root.ids.status_panel.text
+        assert "Load cancelled" in app.root.ids.status_panel.status_text
 
 def test_on_load_non_md_file(app, tmp_path):
     app.root = app.build()
@@ -189,7 +189,7 @@ def test_on_load_non_md_file(app, tmp_path):
     mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
     with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
         app.on_load()
-        assert "Please select a .md file" in app.root.ids.status_panel.text
+        assert "Please select a .md file" in app.root.ids.status_panel.status_text
 
 def test_on_load_file_error(app, tmp_path):
     app.root = app.build()
@@ -203,7 +203,7 @@ def test_on_load_file_error(app, tmp_path):
     with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
         with mock.patch("builtins.open", side_effect=IOError("Read error")):
             app.on_load()
-            assert "Error loading file" in app.root.ids.status_panel.text
+            assert "Error loading file" in app.root.ids.status_panel.status_text
 
 def test_on_save_success(app, tmp_path):
     app.root = app.build()
@@ -226,7 +226,7 @@ def test_on_save_success(app, tmp_path):
         mock_save_file.side_effect = lambda **kwargs: kwargs["on_selection"]([str(fake_file)])
         app.on_save()
         assert fake_file.read_text(encoding="utf-8") == "# Save Test"
-        assert "Saved to" in app.root.ids.status_panel.text
+        assert "Saved to" in app.root.ids.status_panel.status_text
 
 def test_on_save_cancel(app):
     app.root = app.build()
@@ -240,7 +240,7 @@ def test_on_save_cancel(app):
     with mock.patch.object(filechooser, "save_file") as mock_save_file:
         mock_save_file.side_effect = lambda **kwargs: kwargs["on_selection"]([])
         app.on_save()
-        assert "Save cancelled" in app.root.ids.status_panel.text
+        assert "Save cancelled" in app.root.ids.status_panel.status_text
 
 def test_on_save_error(app):
     app.root = app.build()
@@ -262,4 +262,4 @@ def test_on_save_error(app):
                 app.root.ids.status_panel.text = "Status: Error saving file - Disk full"
         mock_save_file.side_effect = lambda **kwargs: kwargs["on_selection"](["fail.md"])
         app.on_save()
-        assert "Error saving file" in app.root.ids.status_panel.text
+        assert "Error saving file" in app.root.ids.status_panel.status_text

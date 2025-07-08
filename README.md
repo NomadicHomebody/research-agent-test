@@ -1,3 +1,36 @@
+# AI Research Assistant
+
+## Quickstart
+
+1. **Clone and enter the repo:**
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
+2. **Create and activate a virtual environment:**
+   ```bash
+   python -m venv research_agent_env
+   # Windows:
+   research_agent_env\Scripts\activate
+   # macOS/Linux:
+   source research_agent_env/bin/activate
+   ```
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Add your API keys to `.env` (see below).**
+5. **Run the agent:**
+   ```bash
+   python research_graph.py
+   ```
+   or launch the UI:
+   ```bash
+   python gui/main.py
+   ```
+
+---
+
 ## Project Overview
 
 The **AI Research Assistant** is an automated research agent built with [LangChain](https://python.langchain.com/) and [LangGraph](https://github.com/langchain-ai/langgraph). It takes a research topic, generates search queries, gathers and scrapes web content, summarizes findings, and compiles a structured report.
@@ -18,6 +51,19 @@ flowchart TD
 - **Stateful Graph Architecture:** Each step is a node in a LangGraph workflow, passing state via a `ResearchState` object.
 - **Persistence:** Supports checkpointing with SQLite for workflow recovery.
 - **Comprehensive Testing:** Each node and workflow component has dedicated unit tests.
+- **Modern Graphical UI:** KivyMD-based interface for interactive research and markdown report viewing.
+
+---
+
+## How It Works
+
+1. **Input a research topic** (via CLI or UI).
+2. The agent generates relevant search queries.
+3. It performs web searches and scrapes content.
+4. Summarizes findings using LLMs.
+5. Compiles a structured markdown report (`research_report.md`).
+
+---
 
 **Code Structure:**
 - [`research_graph.py`](research_graph.py:1): Core logic, state definition, node functions, and graph assembly.
@@ -37,7 +83,9 @@ flowchart TD
 - **Pytest**: Unit testing framework.
 
 For a step-by-step build guide, see [`Guide.md`](Guide.md:1).
-# AI Research Assistant
+For development plans and progress, see [`ImplementationPlan.md`](ImplementationPlan.md:1).
+
+---
 
 ## Getting Started
 
@@ -83,6 +131,8 @@ Follow these steps to set up and run the AI Research Assistant locally:
      TAVILY_API_KEY=your_tavily_api_key_here
      LANGCHAIN_TRACING_KEY=your_langchain_tracing_key_here
      ```
+   - See [API provider docs](https://platform.openai.com/account/api-keys), [Google Gemini](https://aistudio.google.com/app/apikey), [Tavily](https://app.tavily.com/keys), or your organization for how to obtain keys.
+   - **Never commit your `.env` file or API keys to version control.**
 
 ### Running the Application
 1. **Run the Script**:
@@ -114,6 +164,34 @@ print("Research complete. Report saved.")
 
 - The `run_agent` function handles the full workflow: query generation, web search, scraping, summarization, and report compilation.
 - Ensure your `.env` file is configured with valid API keys before running the agent.
+
+---
+
+### Running the Graphical User Interface (UI)
+
+A modern graphical UI is provided for interactive research and markdown report viewing.
+
+**Prerequisites:**
+- Python 3.8 or newer
+- [KivyMD](https://kivymd.readthedocs.io/en/latest/) and [Kivy](https://kivy.org/#download) (`pip install kivy kivymd`)
+- (Optional) [plyer](https://github.com/kivy/plyer) for file dialogs (`pip install plyer`)
+
+**To launch the UI:**
+```bash
+python gui/main.py
+```
+
+**Features:**
+- Enter a research topic and run the agent with a button click
+- View live status updates and markdown output in real time
+- Save or load markdown reports via file dialogs (requires plyer)
+- Responsive, modern layout with dynamic background
+
+**Troubleshooting:**
+- If you see errors about missing Kivy/KivyMD, install them with `pip install kivy kivymd`
+- For file open/save dialogs, install plyer (`pip install plyer`). On some platforms, file dialogs may not be supported.
+
+See [`gui/main.py`](gui/main.py:1) for implementation details.
 ### Running Unit Tests
 To ensure the integrity and correctness of the codebase, run the unit tests using `pytest`.
 
@@ -131,3 +209,39 @@ To ensure the integrity and correctness of the codebase, run the unit tests usin
 ### Notes
 - Ensure all API keys are valid and have the necessary permissions.
 - For debugging and tracing, consider setting up LangSmith.
+- For more detailed instructions, see [`Guide.md`](Guide.md:1).
+
+---
+
+## FAQ / Troubleshooting
+
+**Q: The UI won't launch or I get Kivy errors.**
+A: Make sure you have installed both `kivy` and `kivymd` (`pip install kivy kivymd`). For file dialogs, install `plyer`.
+
+**Q: I get an error about missing API keys.**
+A: Double-check your `.env` file is present and filled out as shown above.
+
+**Q: Where is the output saved?**
+A: The research report is saved as `research_report.md` in the project root.
+
+**Q: Can I use my own LLM or search provider?**
+A: Yes, but you will need to modify the relevant node in [`research_graph.py`](research_graph.py:1) and update dependencies.
+
+**Q: How do I run tests?**
+A: See the "Running Unit Tests" section above.
+
+---
+
+## Contributing
+
+Contributions are welcome! To get started:
+- Read [`ImplementationPlan.md`](ImplementationPlan.md:1) and [`Guide.md`](Guide.md:1).
+- Fork the repo and create a feature branch.
+- Ensure all new code is covered by unit tests.
+- Open a pull request with a clear description of your changes.
+
+---
+
+## License
+
+This project is licensed under the MIT License.

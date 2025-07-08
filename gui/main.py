@@ -27,83 +27,93 @@ from gui.widgets.status_panel import StatusPanel
 
 KV = '''
 #:import Window kivy.core.window.Window
-
 <MainLayout>:
-    orientation: 'horizontal'
-    DynamicBackground:
-        id: bg
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_x: 0.5
-        padding: 20
-        spacing: 10
-
-        TextInput:
-            id: topic_input
-            hint_text: "Enter research topic..."
-            size_hint_y: 0.5
-            font_size: 20
-            foreground_color: 0,0,0,1
-            background_color: 1,1,1,1
-            color: 0,0,0,1
-
+    # Use FloatLayout for absolute positioning
+    FloatLayout:
+        DynamicBackground:
+            id: bg
+            size_hint: 1, 1
+            pos_hint: {"x": 0, "y": 0}
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: 0.15
-            spacing: 10
+            size_hint: 1, 1
+            pos_hint: {"x": 0, "y": 0}
+            # Left column
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.5
+                padding: 20
+                spacing: 10
 
-            Button:
-                id: submit_btn
-                text: "Submit"
-                background_color: 0,0.12,0.3,1
-                color: 1,1,1,1
-                font_size: 16
-                on_release: app.on_submit()
+                TextInput:
+                    id: topic_input
+                    hint_text: "Enter research topic..."
+                    size_hint_y: 0.5
+                    font_size: 20
+                    foreground_color: 0,0,0,1
+                    background_color: 1,1,1,1
+                    color: 0,0,0,1
 
-            Button:
-                id: clear_btn
-                text: "Clear"
-                background_color: 0,0.12,0.3,1
-                color: 1,1,1,1
-                font_size: 16
-                on_release: app.on_clear()
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: 0.15
+                    spacing: 10
 
-            Button:
-                id: save_btn
-                text: "Save"
-                background_color: 0,0.12,0.3,1
-                color: 1,1,1,1
-                font_size: 16
-                on_release: app.on_save()
+                    Button:
+                        id: submit_btn
+                        text: "Submit"
+                        background_color: 0,0.12,0.3,1
+                        color: 1,1,1,1
+                        font_size: 16
+                        on_release: app.on_submit()
 
-        StatusPanel:
-            id: status_panel
-            size_hint_y: 0.25
+                    Button:
+                        id: clear_btn
+                        text: "Clear"
+                        background_color: 0,0.12,0.3,1
+                        color: 1,1,1,1
+                        font_size: 16
+                        on_release: app.on_clear()
 
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: 0.1
-            padding: [0, 10, 0, 0]
-            Label:
-                text: "AI Research Agent"
-                font_size: 18
-                size_hint_y: 1
-                halign: 'center'
-                valign: 'middle'
-                color: 0,0.12,0.3,1
+                    Button:
+                        id: save_btn
+                        text: "Save"
+                        background_color: 0,0.12,0.3,1
+                        color: 1,1,1,1
+                        font_size: 16
+                        on_release: app.on_save()
 
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint_x: 0.5
-        padding: 20
-        spacing: 10
+                StatusPanel:
+                    id: status_panel
+                    size_hint_y: 0.25
 
-        MarkdownViewer:
-            id: markdown_viewer
-            markdown_text: "Markdown output will appear here."
-            size_hint_y: 0.8
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: 0.1
+                    padding: [0, 10, 0, 0]
+                    Label:
+                        text: "AI Research Agent"
+                        font_size: 18
+                        size_hint_y: 1
+                        halign: 'center'
+                        valign: 'middle'
+                        color: 0,0.12,0.3,1
 
+            # Right column
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.5
+                padding: 20
+                spacing: 10
+
+                MarkdownViewer:
+                    id: markdown_viewer
+                    markdown_text: "Markdown output will appear here."
+                    size_hint_y: 0.8
 '''
+# Only load the KV string once at module import
+from kivy.lang import Builder as _Builder
+_Builder.load_string(KV)
 
 class MainLayout(BoxLayout):
     """
@@ -129,7 +139,6 @@ class ResearchAgentApp(MDApp):
         print("DEBUG: Entered ResearchAgentApp.build()")
         print("DEBUG: KV string length:", len(KV))
         Window.clearcolor = (0.1, 0.1, 0.15, 1)
-        Builder.load_string(KV)
         return MainLayout()
 
     def load_markdown_report(self):

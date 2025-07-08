@@ -39,8 +39,23 @@ def test_app_builds(app):
 
 def test_main_layout_widget_order_and_colors(app):
     root = app.build()
-    # Left column: topic_input, buttons, status_panel, label
-    left_col = root.children[1]  # children: [right, left]
+    # Traverse new layout: root (MainLayout) -> FloatLayout -> BoxLayout (columns)
+    float_layout = root.children[0]
+    assert float_layout.__class__.__name__ == "FloatLayout"
+    # Find the BoxLayout (columns) inside FloatLayout
+    box_layout = None
+    for child in float_layout.children:
+        if child.__class__.__name__ == "BoxLayout" and getattr(child, "orientation", None) == "horizontal":
+            box_layout = child
+            break
+    assert box_layout is not None, "BoxLayout (columns) not found in FloatLayout"
+    # Left and right columns
+    left_col = None
+    right_col = None
+    # Kivy stacking: children[0] is rightmost, children[1] is leftmost (for 2 columns)
+    assert len(box_layout.children) >= 2, "BoxLayout does not have two columns"
+    right_col = box_layout.children[0]
+    left_col = box_layout.children[1]
     # Find all children in left BoxLayout
     left_widgets = [w for w in left_col.children if hasattr(w, "id") or hasattr(w, "text")]
     # topic_input should be present and black text
@@ -61,9 +76,27 @@ def test_main_layout_widget_order_and_colors(app):
     assert hasattr(status_panel, "label")
     assert tuple(status_panel.label.color) == (0, 0.12, 0.3, 1)
     # Right column: MarkdownViewer
-    right_col = root.children[0]
     markdown_viewer = root.ids.markdown_viewer
     assert markdown_viewer is not None
+
+    # --- Additional assertions for DynamicBackground ---
+    # Reference DynamicBackground by id to avoid duplicate instance issues
+    from kivy.core.window import Window
+
+    bg = root.ids.bg
+    assert bg is not None, "DynamicBackground not found in root layout"
+    # Assert background covers the full window
+    assert tuple(bg.size) == tuple(Window.size)
+    # Assert all interactive widgets are above the background
+    # (children[0] is top, children[-1] is bottom)
+    assert float_layout.children[-1] is bg.__self__
+
+    # Simulate mouse movement and check color change
+    w, h = Window.size
+    orig_color = (bg.bg_color.r, bg.bg_color.g, bg.bg_color.b)
+    bg.on_mouse_pos(None, (w // 4, h // 4))
+    new_color = (bg.bg_color.r, bg.bg_color.g, bg.bg_color.b)
+    assert orig_color != new_color
 
 def test_clear_button(app):
     root = app.build()

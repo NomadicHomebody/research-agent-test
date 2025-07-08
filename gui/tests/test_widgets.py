@@ -71,12 +71,33 @@ def test_status_panel_updates():
     assert bg_color is not None
     assert all(abs(a - b) < 0.01 for a, b in zip(bg_color, (0.94, 0.94, 0.94, 1)))
 
-def test_dynamic_background_color_changes():
+def test_dynamic_background_color_and_size(monkeypatch):
+    from kivy.core.window import Window
+
     bg = DynamicBackground()
+    # Simulate window size
+    monkeypatch.setattr(Window, "size", (800, 600))
     # Simulate mouse at center
-    w, h = 800, 600
+    w, h = Window.size
     bg.on_mouse_pos(None, (w // 2, h // 2))
     r, g, b = bg.bg_color.r, bg.bg_color.g, bg.bg_color.b
     assert 0.1 <= r <= 0.6
     assert 0.1 <= g <= 0.6
     assert 0.15 <= b <= 0.65
+
+    # Assert background covers the full window
+    assert tuple(bg.size) == tuple(Window.size)
+
+def test_dynamic_background_stacking():
+    """Ensure interactive widgets are above the background."""
+    from kivy.uix.button import Button
+    from kivy.uix.floatlayout import FloatLayout
+
+    layout = FloatLayout()
+    bg = DynamicBackground()
+    btn = Button()
+    layout.add_widget(bg)
+    layout.add_widget(btn)
+    # The last added widget should be on top
+    assert layout.children[0] is btn
+    assert layout.children[-1] is bg

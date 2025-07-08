@@ -12,9 +12,9 @@ Unit tests for custom widgets in the Kivy GUI.
 import pytest
 from kivy.base import EventLoop
 
-from gui.widgets.markdown_viewer import MarkdownViewer
-from gui.widgets.status_panel import StatusPanel
-from gui.widgets.dynamic_background import DynamicBackground
+from test.gui.widgets.markdown_viewer import MarkdownViewer
+from test.gui.widgets.status_panel import StatusPanel
+from test.gui.widgets.dynamic_background import DynamicBackground
 
 # --- Patch: Provide a minimal MDApp context for KivyMD widgets ---
 from kivymd.app import MDApp

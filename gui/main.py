@@ -28,9 +28,9 @@ except Exception as e:
     print(f"WARNING: Could not register RobotoMono.ttf: {e}")
 
 # Register custom widgets for KV loading
-from gui.widgets.dynamic_background import DynamicBackground
-from gui.widgets.markdown_viewer import MarkdownViewer
-from gui.widgets.status_panel import StatusPanel
+from test.gui.widgets.dynamic_background import DynamicBackground
+from test.gui.widgets.markdown_viewer import MarkdownViewer
+from test.gui.widgets.status_panel import StatusPanel
 
 KV = '''
 #:import Window kivy.core.window.Window

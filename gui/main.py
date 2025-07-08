@@ -21,9 +21,9 @@ import threading
 import os
 
 # Register custom widgets for KV loading
-from .widgets.dynamic_background import DynamicBackground
-from .widgets.markdown_viewer import MarkdownViewer
-from .widgets.status_panel import StatusPanel
+from gui.widgets.dynamic_background import DynamicBackground
+from gui.widgets.markdown_viewer import MarkdownViewer
+from gui.widgets.status_panel import StatusPanel
 
 KV = '''
 #:import Window kivy.core.window.Window
@@ -71,10 +71,6 @@ KV = '''
             orientation: 'vertical'
             size_hint_y: 0.25
             padding: [0, 20, 0, 0]
-            Image:
-                id: logo
-                source: 'assets/logo.svg'
-                size_hint_y: 0.7
             Label:
                 text: "AI Research Agent"
                 font_size: 18

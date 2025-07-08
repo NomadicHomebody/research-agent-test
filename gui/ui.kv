@@ -42,7 +42,7 @@
             padding: [0, 20, 0, 0]
             Image:
                 id: logo
-                source: 'assets/logo.svg'
+                source: 'assets/logo.png'
                 size_hint_y: 0.7
             Label:
                 text: "AI Research Agent"
@@ -58,12 +58,11 @@
         spacing: 10
 
         # MarkdownViewer:
-        Label:
+        MarkdownViewer:
             id: markdown_output
             text: "Markdown output will appear here."
             font_size: 16
             size_hint_y: 0.8
-            text_size: self.width, None
             halign: 'left'
             valign: 'top'
 

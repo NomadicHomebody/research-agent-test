@@ -1,266 +1,102 @@
-# Implementation Plan: Research Agent with LangChain & LangGraph
+# 9. UI Modernization & Layout Update Implementation Plan
 
-## 1. Project Setup, Imports, and Environment Initialization
-
-- [x] **Create virtual environment:**  
-  `python -m venv research_agent_env`
-- [x] **Activate environment:**  
-  Windows: `research_agent_env\Scripts\activate`
-- [x] **Install dependencies:**  
-  `pip install langchain langgraph langchain_google_genai python-dotenv beautifulsoup4 tavily-python`
-- [x] **Create `.env` file:**  
-  Add API keys for Google Gemini, Tavily, and optionally LangSmith.
-- [x] **Import modules in `research_graph.py`:**
-  - `os`, `dotenv`, `typing`, `operator`
-  - `from langchain_google_genai import ChatGoogleGemini`
-  - `from langchain_community.tools.tavily_search import TavilySearchResults`
-  - `from langchain_core.prompts import ChatPromptTemplate`
-  - `from langgraph.graph import StateGraph`
-  - `from langchain_core.messages import HumanMessage`
-  - `from bs4 import BeautifulSoup`
-  - `import requests`
-- [x] **Load environment variables:**  
-  `from dotenv import load_dotenv; load_dotenv()`
-- [x] **Initialize LLM:**  
-  `llm = ChatGoogleGemini(model="gemini-1", temperature=0)`
+## Objective
+Implement the following UI changes in the main codebase and ensure all impacted and new tests are updated and passing:
+1. All UI text is black or dark blue.
+2. Input box, buttons, and status box are on the left half, stacked vertically.
+3. Status box has a light grey background and dark blue text.
+4. Markdown window is on the right half, widened, and renders "pretty" markdown.
+5. All tests validate new UI logic and pass.
 
 ---
 
-## 2. Define the Research Agent State Graph Structure
+## Implementation Steps
 
-- [x] **Define `ResearchState` using `TypedDict`:**
-  ```python
-  class ResearchState(TypedDict):
-      topic: str
-      search_queries: list[str]
-      retrieved_docs: list[dict]
-      scraped_data: list[dict]
-      summaries: list[str]
-      final_report: str
-      error_message: str
-      messages: list
-  ```
-- [x] **Plan node sequence:**  
-  Query Generator → Web Searcher → Content Scraper → Content Summarizer → Report Compiler
+### 1. Update Main Layout and Styling ([`gui/main.py`])
+- Refactor the KV string:
+  - Ensure left `BoxLayout` contains, in order: `TextInput`, buttons (`Submit`, `Clear`, `Save`), and the `StatusPanel` widget (replace the label).
+  - Set `color` property for all text widgets to black (`0,0,0,1`) or dark blue (`0,0.12,0.3,1`).
+  - Adjust `size_hint_x` and `size_hint_y` to ensure left and right halves are equal and content fills available space.
+- Update button and input styling for consistency.
 
----
+### 2. Status Panel Styling ([`gui/widgets/status_panel.py`])
+- Add a `Label` child to `StatusPanel` that binds to `status_text`.
+- Use Kivy canvas to set a light grey background (`#f0f0f0`).
+- Set label text color to dark blue.
+- Ensure the widget stretches horizontally and vertically as needed.
 
-## 3. Implement Node Functions
+### 3. Markdown Viewer Rendering ([`gui/widgets/markdown_viewer.py`])
+- Replace the `Label` with a widget that supports HTML (e.g., `kivy.uix.webview` or a rich text widget).
+- On `markdown_text` update, convert markdown to HTML using the `markdown` package and display formatted output.
+- Ensure indentation, lists, code blocks, and other markdown features render correctly.
 
-### a. Query Generator Node
+### 4. Test Updates and Creation ([`gui/tests/`])
+- Update or create tests in:
+  - [`test_main.py`]: Validate layout, widget placement, and color properties.
+  - [`test_widgets.py`]: Test `StatusPanel` background/text color and markdown rendering.
+- Add tests to:
+  - Confirm all UI elements are present and styled as specified.
+  - Validate markdown rendering for various markdown features.
+  - Check status panel color and text updates.
+- Run all tests and ensure they pass.
+  - If a test fails, first check for bugs in the main code and fix as needed.
+  - If no bug is found, fix the test and re-run.
 
-- [x] Implement `generate_queries_node(state: ResearchState) -> Dict[str, Any]`
-  - [x] Use `ChatPromptTemplate` to prompt LLM for 3-5 search queries.
-  - [x] Parse LLM output into a list of queries.
-  - [x] Return `{"search_queries": queries, "messages": ...}`.
-  - [x] **Add unit tests for Query Generator Node**
-    - [x] Create new test file and setup all required inputs and env var loading for proper testing
-    - [x] Test happy path: valid topic returns list of queries.
-    - [x] Test edge cases: empty topic, non-string topic.
-    - [x] Test exception handling: LLM errors, parsing errors.
-    - [x] Run all tests and validate that they all pass
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - If there is a bug then edit the main logic to fix the bug
-        - If no bug is evident then fix the test
-
-###`    b. Web Searcher Node/q
-- [x] Implement `web_search_node(state: ResearchState) -> Dict[str, Any]`
-  - [x] Use `TavilySearchResults(max_results=3)` for each query.
-  - [x] Collect and deduplicate URLs/snippets.
-  - [x] Return `{"retrieved_docs": docs, "messages": ...}`.
-  - [x] **Add unit tests for Web Searcher Node**
-    - [x] Test happy path: valid queries return docs.
-    - [x] Test edge cases: empty queries, duplicate queries.
-    - [x] Test exception handling: API errors, network failures.
-    - [x] Run all tests and validate that they all pass
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - If there is a bug then edit the main logic to fix the bug
-        - If no bug is evident then fix the test
-
-### c. Content Scraper Node
-
-- [x] Implement `scrape_content_node(state: ResearchState) -> Dict[str, Any]`
-  - [x] For each URL, fetch HTML with `requests.get(url)`.
-  - [x] Extract main text using `BeautifulSoup`.
-  - [x] Return `{"scraped_data": scraped_results, "messages": ...}`.
-  - [x] **Add unit tests for Content Scraper Node**
-    - [x] Test happy path: valid URLs return scraped content.
-    - [x] Test edge cases: invalid URLs, empty content.
-    - [x] Test exception handling: HTTP errors, parsing errors.
-    - [x] Run all tests and validate that they all pass
-      - If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - If there is a bug then edit the main logic to fix the bug
-        - If no bug is evident then fix the test
-
-### d. Content Summarizer Node
-
-- [x] Implement `summarize_content_node(state: ResearchState) -> Dict[str, Any]`
-  - [x] For each page, prompt LLM to summarize content relevant to topic.
-  - [x] Return `{"summaries": summaries, "messages": ...}`.
-  - [x] **Add unit tests for Content Summarizer Node**
-    - [x] Test happy path: valid content returns summaries.
-    - [x] Test edge cases: empty content, irrelevant content.
-    - [x] Test exception handling: LLM errors, empty summaries.
-      - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - [x] If there is a bug then edit the main logic to fix the bug
-        - [x] If no bug is evident then fix the test
-
-### e. Report Compiler Node
-
-- [x] Implement `compile_report_node(state: ResearchState) -> Dict[str, Any]`
-  - [x] Prompt LLM to synthesize summaries into a structured report.
-  - [x] Return `{"final_report": report, "messages": ...}`.
-  - [x] **Add unit tests for Report Compiler Node**
-    - [x] Test happy path: valid summaries return report.
-    - [x] Test edge cases: empty summaries, malformed summaries.
-    - [x] Test exception handling: LLM errors, formatting errors.
-      - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-        - [x] If there is a bug then edit the main logic to fix the bug
-        - [x] If no bug is evident then fix the test
+### 5. Documentation
+- Add/expand docstrings in all modified classes and methods.
+- Update comments to clarify layout and styling logic.
 
 ---
 
-## 4. Build the LangGraph Workflow
+## Acceptance Criteria
+- All UI changes are visible and match requirements.
+- All tests pass and cover new/updated logic.
+- No regressions in existing functionality.
+- Plan is documented in this section.
 
-- [x] Create a new file `workflow_builder.py` for storing new code
-- [x] Create new method `build_workflow` that returns a newly instanciated workflow
-- [x] Instantiate graph:  
-  `workflow = StateGraph(ResearchState)`
-- [x] Add nodes:  
-  `workflow.add_node("query_generator", generate_queries_node)`  
-  (repeat for each node)
-- [x] Add edges:  
-  `workflow.add_edge("query_generator", "web_searcher")`  
-  (repeat for each transition)
-- [x] Set entry point:  
-  `workflow.set_entry_point("query_generator")`
-- [x] Set terminal node:  
-  `workflow.add_edge("report_compiler", END)`
-- [x] **Add unit tests for workflow_builder**
-  - [x] Test happy path: valid summaries return report.
-  - [x] Test edge cases: empty summaries, malformed summaries.
-  - [x] Test exception handling: LLM errors, formatting errors.
-    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-      - [x] If there is a bug then edit the main logic to fix the bug
-      - [x] If no bug is evident then fix the test
 ---
 
-## 5. Set Up Persistence (Optional)
+## Implementation Steps
 
-- [x] Add persistence:  
-  `from langgraph.checkpoint.sqlite import SqliteSaver`  
-  `memory = SqliteSaver.from_conn_string(":memory:")`
-- [x] Compile with checkpointing:  
-  `app = workflow.compile(checkpointer=memory)`
-- [x] **Add unit tests for new persistence logic**
-  - [x] Test happy path
-  - [x] Test edge cases
-  - [x] Test exception handling
-    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-      - [x] If there is a bug then edit the main logic to fix the bug
-      - [x] If no bug is evident then fix the test
+### 1. Update Main Layout and Styling ([`gui/main.py`])
+- Refactor the KV string:
+  - Ensure left `BoxLayout` contains, in order: `TextInput`, buttons (`Submit`, `Clear`, `Save`), and the `StatusPanel` widget (replace the label).
+  - Set `color` property for all text widgets to black (`0,0,0,1`) or dark blue (`0,0.12,0.3,1`).
+  - Adjust `size_hint_x` and `size_hint_y` to ensure left and right halves are equal and content fills available space.
+- Update button and input styling for consistency.
+
+### 2. Status Panel Styling ([`gui/widgets/status_panel.py`])
+- Add a `Label` child to `StatusPanel` that binds to `status_text`.
+- Use Kivy canvas to set a light grey background (`#f0f0f0`).
+- Set label text color to dark blue.
+- Ensure the widget stretches horizontally and vertically as needed.
+
+### 3. Markdown Viewer Rendering ([`gui/widgets/markdown_viewer.py`])
+- Replace the `Label` with a widget that supports HTML (e.g., `kivy.uix.webview` or a rich text widget).
+- On `markdown_text` update, convert markdown to HTML using the `markdown` package and display formatted output.
+- Ensure indentation, lists, code blocks, and other markdown features render correctly.
+
+### 4. Test Updates and Creation ([`gui/tests/`])
+- Update or create tests in:
+  - [`test_main.py`]: Validate layout, widget placement, and color properties.
+  - [`test_widgets.py`]: Test `StatusPanel` background/text color and markdown rendering.
+- Add tests to:
+  - Confirm all UI elements are present and styled as specified.
+  - Validate markdown rendering for various markdown features.
+  - Check status panel color and text updates.
+- Run all tests and ensure they pass.
+  - If a test fails, first check for bugs in the main code and fix as needed.
+  - If no bug is found, fix the test and re-run.
+
+### 5. Documentation
+- Add/expand docstrings in all modified classes and methods.
+- Update comments to clarify layout and styling logic.
+
 ---
 
-## 6. Set Up Agent Runner 
+## Acceptance Criteria
+- All UI changes are visible and match requirements.
+- All tests pass and cover new/updated logic.
+- No regressions in existing functionality.
+- Plan is documented in this section.
 
-- [x] Create new file `agent_runner` that streamlines the execution for running the AI agent workflow such that all it takes is an input string of the desired research topic into a method to get the AI agent to fully execute, retrieve the final state, and save the final report to a markdown file like the high level flow listed below:
-- [x] **Add unit tests for workflow_builder**
-  - [x] Test happy path: valid summaries return report.
-  - [x] Test edge cases: empty summaries, malformed summaries.
-  - [x] Test exception handling: LLM errors, formatting errors.
-    - [x] If test(s) fail: evaluate the functional validity of the main logic first to see if there is a bug:
-      - [x] If there is a bug then edit the main logic to fix the bug
-      - [x] If no bug is evident then fix the test
----
-
-## 7. CLI Runner with Spinner and Status Updates
-
-- [x] Refactor workflow to support explicit node-by-node status yielding via `stepwise_agent` in [`workflow_builder.py`](workflow_builder.py:12)
-- [x] Replace `agent_runner.py` with CLI runner that:
-    - Accepts a topic string from the command line
-    - Uses `yaspin` spinner and updates status as each node completes
-    - Writes the markdown report to `research_report.md`
-    - Prints a final message with the report location
-- [x] Add/modify unit tests in `test/test_agent_runner.py` to cover spinner/status logic and file output
-- [x] Add `yaspin` to `requirements.txt`
-- [ ] (Optional) Run Bandit security scan
-
-## 8. Add UI Wrapper for Agent AI
-
-- [ ] **Kivy GUI Implementation Plan**
-  - **Research & Design**
-    - Research Kivy best practices for:
-      - Responsive layouts (`BoxLayout`, `GridLayout`, `FloatLayout`)
-      - SVG icon integration (`kivy.garden.svg`)
-      - Markdown rendering (`kivy-markdown` or custom widget)
-      - Dynamic backgrounds (Canvas, mouse event bindings)
-      - Theming and modern UI design in Kivy
-      - Unit testing Kivy apps (`pytest`, `kivy.tests`)
-  - **File Structure**
-    - `gui/`
-      - `main.py` — Entry point for the Kivy app
-      - `ui.kv` — Kivy language file for layout and styling
-      - `widgets/`
-        - `markdown_viewer.py` — Custom widget for rendering markdown
-        - `status_panel.py` — Widget for status updates
-        - `dynamic_background.py` — Widget for dynamic background
-      - `assets/`
-        - `logo.svg` — Magnifying glass AI logo
-        - `icons/` — SVG icons for buttons
-      - `tests/`
-        - `test_main.py` — Unit tests for main app logic
-        - `test_widgets.py` — Unit tests for custom widgets
-  - **Core Features & Implementation Steps**
-    - UI Layout & Responsiveness:
-      - Use `BoxLayout` and `GridLayout` for main window split (left: input, right: output).
-      - Ensure all elements resize and reposition gracefully.
-      - Use `size_hint` and `padding` for proportional sizing.
-    - Input & Controls:
-      - TextInput for research topic (left panel, 3/5 vertical space).
-      - Buttons (SVG icons) for: Submit, Clear input, Save output.
-      - Place buttons above logo, below input.
-    - Logo & Branding:
-      - Bottom left: SVG logo (`logo.svg`) with "AI Research Agent" label centered below.
-    - Status Panel:
-      - Bottom right: Status window with icon and text, updates as agent runs.
-    - Markdown Output:
-      - Right panel: Markdown rendered prettily (5/6 vertical space).
-      - Use or extend a markdown widget for Kivy.
-    - Dynamic Background:
-      - Implement background color changes based on mouse position using Canvas and event bindings.
-    - Theming & Styling:
-      - Apply a dark/light gradient theme with accent colors (black, grey, blue, white, green).
-      - Use clear, modern fonts and logical spacing.
-    - Unit Testing:
-      - Use `pytest` and Kivy's testing utilities.
-      - Test: Widget rendering and resizing, button actions and state changes, markdown rendering, dynamic background behavior, error handling and edge cases.
-  - **Integration**
-    - Connect GUI to agent runner (call agent with input, update status, display output).
-    - Ensure file saving dialog works cross-platform.
-  - **Documentation**
-    - Add docstrings and comments per project standards.
-    - Update this plan as implementation progresses.
-  - **Mermaid Diagram**
-
-    ```mermaid
-    flowchart LR
-        A[User Input Box] -->|Submit| B[Agent Runner]
-        B -->|Status Updates| C[Status Panel]
-        B -->|Markdown Output| D[Markdown Viewer]
-        A -->|Clear| A
-        D -->|Save| E[File Dialog]
-        F[Dynamic Background] -.-> A
-        F -.-> D
-        F -.-> C
-        G[SVG Logo & Branding] -.-> A
-    ```
-
-```mermaid
-flowchart TD
-    A[Input Topic] --> B[Query Generator]
-    B --> C[Web Searcher]
-    C --> D[Content Scraper]
-    D --> E[Content Summarizer]
-    E --> F[Report Compiler]
-    F --> G[Output: research_report.md]
-```

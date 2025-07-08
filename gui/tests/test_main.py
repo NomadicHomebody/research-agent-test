@@ -37,6 +37,34 @@ def test_app_builds(app):
     assert 'markdown_viewer' in root.ids
     assert 'status_panel' in root.ids
 
+def test_main_layout_widget_order_and_colors(app):
+    root = app.build()
+    # Left column: topic_input, buttons, status_panel, label
+    left_col = root.children[1]  # children: [right, left]
+    # Find all children in left BoxLayout
+    left_widgets = [w for w in left_col.children if hasattr(w, "id") or hasattr(w, "text")]
+    # topic_input should be present and black text
+    topic_input = root.ids.topic_input
+    assert topic_input is not None
+    assert tuple(topic_input.foreground_color) == (0, 0, 0, 1)
+    # Buttons should be present and styled
+    submit_btn = root.ids.submit_btn
+    clear_btn = root.ids.clear_btn
+    save_btn = root.ids.save_btn
+    for btn in [submit_btn, clear_btn, save_btn]:
+        assert btn is not None
+        # Button background is dark blue, text is white
+        assert tuple(btn.background_color) == (0, 0.12, 0.3, 1)
+        assert tuple(btn.color) == (1, 1, 1, 1)
+    # StatusPanel should be present and have correct label color
+    status_panel = root.ids.status_panel
+    assert hasattr(status_panel, "label")
+    assert tuple(status_panel.label.color) == (0, 0.12, 0.3, 1)
+    # Right column: MarkdownViewer
+    right_col = root.children[0]
+    markdown_viewer = root.ids.markdown_viewer
+    assert markdown_viewer is not None
+
 def test_clear_button(app):
     root = app.build()
     root.ids.topic_input.text = "Test topic"

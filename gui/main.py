@@ -41,8 +41,11 @@ KV = '''
         TextInput:
             id: topic_input
             hint_text: "Enter research topic..."
-            size_hint_y: 0.6
+            size_hint_y: 0.5
             font_size: 20
+            foreground_color: 0,0,0,1
+            background_color: 1,1,1,1
+            color: 0,0,0,1
 
         BoxLayout:
             orientation: 'horizontal'
@@ -52,31 +55,42 @@ KV = '''
             Button:
                 id: submit_btn
                 text: "Submit"
-                # icon: 'icons/submit.svg'  # To be replaced with SVG icon
+                background_color: 0,0.12,0.3,1
+                color: 1,1,1,1
+                font_size: 16
                 on_release: app.on_submit()
 
             Button:
                 id: clear_btn
                 text: "Clear"
-                # icon: 'icons/clear.svg'
+                background_color: 0,0.12,0.3,1
+                color: 1,1,1,1
+                font_size: 16
                 on_release: app.on_clear()
 
             Button:
                 id: save_btn
                 text: "Save"
-                # icon: 'icons/save.svg'
+                background_color: 0,0.12,0.3,1
+                color: 1,1,1,1
+                font_size: 16
                 on_release: app.on_save()
+
+        StatusPanel:
+            id: status_panel
+            size_hint_y: 0.25
 
         BoxLayout:
             orientation: 'vertical'
-            size_hint_y: 0.25
-            padding: [0, 20, 0, 0]
+            size_hint_y: 0.1
+            padding: [0, 10, 0, 0]
             Label:
                 text: "AI Research Agent"
                 font_size: 18
-                size_hint_y: 0.3
+                size_hint_y: 1
                 halign: 'center'
                 valign: 'middle'
+                color: 0,0.12,0.3,1
 
     BoxLayout:
         orientation: 'vertical'
@@ -89,20 +103,28 @@ KV = '''
             markdown_text: "Markdown output will appear here."
             size_hint_y: 0.8
 
-        # StatusPanel:
-        Label:
-            id: status_panel
-            text: "Status: Idle"
-            font_size: 14
-            size_hint_y: 0.2
-            halign: 'left'
-            valign: 'middle'
 '''
 
 class MainLayout(BoxLayout):
+    """
+    MainLayout is the root widget for the AI Research Agent GUI.
+
+    - Left half: input, buttons, status panel, app label
+    - Right half: markdown viewer
+    - Uses DynamicBackground for visual effect
+    """
     pass
 
 class ResearchAgentApp(MDApp):
+    """
+    Main KivyMD application for the AI Research Agent.
+
+    Handles:
+    - Building the main layout and loading the KV string
+    - Loading and displaying markdown reports
+    - Handling submit, clear, and save actions
+    - Updating status panel and markdown viewer
+    """
     def build(self):
         print("DEBUG: Entered ResearchAgentApp.build()")
         print("DEBUG: KV string length:", len(KV))

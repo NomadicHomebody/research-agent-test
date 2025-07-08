@@ -148,6 +148,62 @@ def test_load_markdown_report_malformed(app):
         app.load_markdown_report()
         # Should not raise, and text should match input or show error
         assert "Error" not in app.root.ids.markdown_viewer.markdown_text
+def test_on_load_success(app, tmp_path):
+    app.root = app.build()
+    md_file = tmp_path / "test.md"
+    md_content = "# Loaded Markdown\n\nContent."
+    md_file.write_text(md_content, encoding="utf-8")
+    import types
+    mock_filechooser = types.SimpleNamespace()
+    def fake_open_file(**kwargs):
+        kwargs["on_selection"]([str(md_file)])
+    mock_filechooser.open_file = fake_open_file
+    mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
+    with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
+        with mock.patch("builtins.open", mock.mock_open(read_data=md_content)):
+            app.on_load()
+            assert app.root.ids.markdown_viewer.markdown_text == md_content
+            assert "Loaded" in app.root.ids.status_panel.text or "Loaded" in app.root.ids.markdown_viewer.markdown_text
+
+def test_on_load_cancel(app):
+    app.root = app.build()
+    import types
+    mock_filechooser = types.SimpleNamespace()
+    def fake_open_file(**kwargs):
+        kwargs["on_selection"]([])
+    mock_filechooser.open_file = fake_open_file
+    mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
+    with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
+        app.on_load()
+        assert "Load cancelled" in app.root.ids.status_panel.text
+
+def test_on_load_non_md_file(app, tmp_path):
+    app.root = app.build()
+    txt_file = tmp_path / "not_markdown.txt"
+    txt_file.write_text("Not markdown", encoding="utf-8")
+    import types
+    mock_filechooser = types.SimpleNamespace()
+    def fake_open_file(**kwargs):
+        kwargs["on_selection"]([str(txt_file)])
+    mock_filechooser.open_file = fake_open_file
+    mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
+    with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
+        app.on_load()
+        assert "Please select a .md file" in app.root.ids.status_panel.text
+
+def test_on_load_file_error(app, tmp_path):
+    app.root = app.build()
+    md_file = tmp_path / "fail.md"
+    import types
+    mock_filechooser = types.SimpleNamespace()
+    def fake_open_file(**kwargs):
+        kwargs["on_selection"]([str(md_file)])
+    mock_filechooser.open_file = fake_open_file
+    mock_plyer = types.SimpleNamespace(filechooser=mock_filechooser)
+    with mock.patch.dict("sys.modules", {"plyer": mock_plyer, "plyer.filechooser": mock_filechooser}):
+        with mock.patch("builtins.open", side_effect=IOError("Read error")):
+            app.on_load()
+            assert "Error loading file" in app.root.ids.status_panel.text
 
 def test_on_save_success(app, tmp_path):
     app.root = app.build()

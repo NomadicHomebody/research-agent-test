@@ -12,3 +12,4 @@ kivymd
 markdown-it-py
 kivy-garden
 markdown
+plyer

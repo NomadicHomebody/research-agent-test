@@ -83,6 +83,14 @@ KV = '''
                         on_release: app.on_clear()
 
                     Button:
+                        id: load_btn
+                        text: "Load"
+                        background_color: 0,0.12,0.3,1
+                        color: 1,1,1,1
+                        font_size: 16
+                        on_release: app.on_load()
+
+                    Button:
                         id: save_btn
                         text: "Save"
                         background_color: 0,0.12,0.3,1
@@ -139,9 +147,60 @@ class ResearchAgentApp(MDApp):
     Handles:
     - Building the main layout and loading the KV string
     - Loading and displaying markdown reports
-    - Handling submit, clear, and save actions
+    - Handling submit, clear, load, and save actions
     - Updating status panel and markdown viewer
     """
+    
+    def on_load(self):
+        """
+        Opens a file dialog to load a markdown file and displays its content in the MarkdownViewer.
+        Handles errors and updates the status panel accordingly.
+        """
+        print("DEBUG: on_load called")
+        try:
+            from kivy import platform
+            print(f"DEBUG: platform={platform}")
+            if platform == "android":
+                self.root.ids.status_panel.text = "Status: Load not supported on Android."
+                print("DEBUG: Android platform detected, aborting load")
+                return
+            from plyer import filechooser
+            print("DEBUG: plyer.filechooser import succeeded")
+        except ImportError as e:
+            self.root.ids.status_panel.text = "Status: Load feature requires 'plyer' package."
+            print(f"DEBUG: ImportError in on_load: {e}")
+            return
+
+        def load_callback(selection):
+            print(f"DEBUG: load_callback called with selection={selection}")
+            if not selection or not selection[0]:
+                self.root.ids.status_panel.text = "Status: Load cancelled."
+                print("DEBUG: No file selected or selection empty")
+                return
+            filepath = selection[0]
+            print(f"DEBUG: File selected: {filepath}")
+            if not filepath.lower().endswith(".md"):
+                self.root.ids.status_panel.text = "Status: Please select a .md file."
+                print("DEBUG: Non-md file selected")
+                return
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    content = f.read()
+                if not content.strip():
+                    self.root.ids.status_panel.text = "Status: Selected file is empty."
+                    print("DEBUG: Selected file is empty")
+                    return
+                self.root.ids.markdown_viewer.markdown_text = content
+                self.root.ids.status_panel.text = f"Status: Loaded {os.path.basename(filepath)}"
+                print("DEBUG: Markdown loaded and displayed")
+            except Exception as e:
+                self.root.ids.status_panel.text = f"Status: Error loading file - {str(e)}"
+                print(f"DEBUG: Exception loading file: {e}")
+
+        print("DEBUG: Calling filechooser.open_file")
+        filechooser.open_file(title="Load Markdown File", filters=[("Markdown files", "*.md")], on_selection=load_callback)
+        print("DEBUG: filechooser.open_file call completed")
+
     def build(self):
         print("DEBUG: Entered ResearchAgentApp.build()")
         print("DEBUG: KV string length:", len(KV))

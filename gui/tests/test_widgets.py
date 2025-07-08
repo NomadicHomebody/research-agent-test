@@ -40,6 +40,48 @@ def test_markdown_viewer_eggshell_background():
     expected = [240/255, 234/255, 214/255, 1]
     assert all(abs(a - b) < 0.01 for a, b in zip(bg_instr.rgba, expected))
 
+def test_markdown_viewer_middle_mouse_autoscroll_disabled():
+    """Verify that middle mouse button does not trigger autoscroll and normal scrolling is preserved."""
+    from kivy.input.motionevent import MotionEvent
+
+    viewer = MarkdownViewer()
+    scroll = viewer.scroll_view
+
+    # Simulate a middle mouse button event
+    class DummyTouch(MotionEvent):
+        def __init__(self):
+            super().__init__(None, 0, {})
+            self.profile = ['button']
+            self.button = 'middle'
+            self.pos = (50, 50)
+            self.sx = 0.5
+            self.sy = 0.5
+            self.px = 50.0
+            self.py = 50.0
+    touch = DummyTouch()
+    # Add required original coordinates for Kivy event transforms
+    touch.ox = 50.0
+    touch.oy = 50.0
+    # Should return True (event consumed, autoscroll prevented)
+    assert scroll.on_touch_down(touch) is True
+
+    # Simulate a left mouse button event (should not be consumed)
+    class DummyLeftTouch(MotionEvent):
+        def __init__(self):
+            super().__init__(None, 1, {})
+            self.profile = ['button']
+            self.button = 'left'
+            self.pos = (50, 50)
+            self.sx = 0.5
+            self.sy = 0.5
+            self.px = 50.0
+            self.py = 50.0
+            self.ox = 50.0
+            self.oy = 50.0
+    left_touch = DummyLeftTouch()
+    # Should not raise or block normal scroll behavior (return value may be True if scrollbar is hit)
+    scroll.on_touch_down(left_touch)
+
 def test_markdown_viewer_scrolls_large_content():
     viewer = MarkdownViewer()
     # Wide and tall markdown

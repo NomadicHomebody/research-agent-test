@@ -15,6 +15,20 @@ from kivy.utils import get_color_from_hex
 
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import NumericProperty
+import logging
+
+class CustomScrollView(ScrollView):
+    """
+    Custom ScrollView that disables OS/Kivy autoscroll by intercepting the middle mouse button.
+
+    This prevents the default autoscroll mode (red circle) from being triggered when the user clicks
+    the mouse wheel, ensuring normal scroll behavior is preserved in the MarkdownViewer.
+    """
+    def on_touch_down(self, touch):
+        if 'button' in touch.profile and touch.button == 'middle':
+            # Intercept middle mouse button to disable autoscroll
+            return True  # Prevent default autoscroll
+        return super().on_touch_down(touch)
 
 class MarkdownViewer(BoxLayout):
     """
@@ -70,7 +84,8 @@ class MarkdownViewer(BoxLayout):
                     LabelBase.register(name="RobotoMono", fn_regular=path)
                     break
 
-        self.scroll_view = ScrollView(
+        # Use CustomScrollView to prevent OS/Kivy autoscroll (middle mouse) from interfering with normal scrolling.
+        self.scroll_view = CustomScrollView(
             size_hint=(1, 1),
             bar_width=10,
             scroll_type=['bars', 'content'],

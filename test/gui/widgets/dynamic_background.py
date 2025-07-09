@@ -2,6 +2,17 @@
 DynamicBackground widget for Kivy GUI.
 Changes background color based on mouse position.
 """
+# -----------------------------------------------------------------------------
+# File: dynamic_background.py
+# Location: test/gui/widgets/
+#
+# This widget provides a dynamic, visually engaging background for the GUI.
+# The background color smoothly changes in response to mouse movement,
+# creating an interactive effect for the user.
+#
+# Used by: gui/main.py (as DynamicBackground)
+# Dependencies: Kivy (Widget, Color, Rectangle, Window)
+# -----------------------------------------------------------------------------
 
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle

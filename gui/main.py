@@ -12,6 +12,27 @@ This GUI provides:
 
 See ImplementationPlan.md section 8 for full requirements.
 """
+###############################################################################
+# File Relationships and Architecture Overview
+#
+# - This file is the entry point for the Kivy-based GUI of the AI Research Agent.
+# - It uses KivyMD for theming and Kivy for UI layout.
+# - Custom widgets are imported from:
+#     - test.gui.widgets.dynamic_background.DynamicBackground
+#     - test.gui.widgets.markdown_viewer.MarkdownViewer
+#     - test.gui.widgets.status_panel.StatusPanel
+# - The GUI layout is defined in a KV string (see KV variable).
+# - The left panel handles user input, action buttons, and status updates.
+# - The right panel displays markdown output.
+# - The app interacts with agent_runner.run_agent to execute research tasks.
+# - File dialogs for loading/saving markdown use plyer.filechooser (desktop only).
+# - The assets directory contains fonts and SVGs for UI styling.
+#
+# Dependencies:
+#   - kivy, kivymd, plyer (for file dialogs), agent_runner (for agent execution)
+#
+# For a full requirements list, see ImplementationPlan.md section 8.
+###############################################################################
 
 from kivymd.app import MDApp
 from kivy.lang import Builder

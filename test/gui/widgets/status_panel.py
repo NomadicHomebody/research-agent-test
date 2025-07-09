@@ -1,6 +1,16 @@
 """
 StatusPanel widget for displaying agent status and icons in the Kivy GUI.
 """
+# -----------------------------------------------------------------------------
+# File: status_panel.py
+# Location: test/gui/widgets/
+#
+# This widget displays the current status of the agent, including step progress,
+# node name, and status messages, with modern styling and responsive layout.
+#
+# Used by: gui/main.py (as StatusPanel)
+# Dependencies: Kivy (BoxLayout, Label, graphics), Kivy properties
+# -----------------------------------------------------------------------------
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, NumericProperty

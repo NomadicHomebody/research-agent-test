@@ -3,6 +3,17 @@ MarkdownViewer widget for rendering markdown in the Kivy GUI.
 
 This widget will be used to display the research report in a "pretty" state.
 """
+# -----------------------------------------------------------------------------
+# File: markdown_viewer.py
+# Location: test/gui/widgets/
+#
+# This widget renders markdown content as formatted, scrollable rich text
+# within the Kivy GUI. It is used to display research reports and supports
+# zoom, code blocks, lists, and custom theming.
+#
+# Used by: gui/main.py (as MarkdownViewer)
+# Dependencies: Kivy, KivyMD, markdown (Python package)
+# -----------------------------------------------------------------------------
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty

@@ -1,3 +1,12 @@
+"""
+Pytest configuration for Kivy/KivyMD GUI tests.
+
+- Provides a session-scoped fixture to ensure a KivyMD App context for all tests.
+- Globally mocks external API calls (requests, TavilySearchResults, GoogleGenerativeAI, etc.)
+  to ensure tests are isolated from network and third-party dependencies.
+
+Dependencies: pytest, Kivy, KivyMD, unittest.mock
+"""
 import pytest
 from kivy.base import EventLoop
 from kivymd.app import MDApp

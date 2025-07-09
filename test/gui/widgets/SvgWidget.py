@@ -1,3 +1,13 @@
+"""
+SvgWidget for displaying SVG images in Kivy GUIs.
+
+- Provides a draggable, scalable SVG display using Kivy's Scatter widget.
+- Can be used standalone or as part of a larger GUI.
+- Loads SVG files from command-line arguments or from the current directory.
+
+Used by: (utility/demo, not directly referenced in main GUI)
+Dependencies: Kivy (Scatter, Svg, FloatLayout, Builder)
+"""
 import sys
 from glob import glob
 from os.path import join, dirname

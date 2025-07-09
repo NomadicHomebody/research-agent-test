@@ -5,6 +5,16 @@ print("DEBUG os.getcwd():", os.getcwd())
 import sys, os
 print("DEBUG sys.path:", sys.path)
 print("DEBUG os.getcwd():", os.getcwd())
+# -----------------------------------------------------------------------------
+# File: test_main.py
+# Location: test/gui/
+#
+# Unit tests for the main Kivy GUI app (ResearchAgentApp).
+# These tests validate widget layout, color theming, button actions,
+# markdown loading/saving, and error handling.
+#
+# Dependencies: pytest, unittest.mock, Kivy, KivyMD, gui/main.py
+# -----------------------------------------------------------------------------
 """
 Unit tests for the main Kivy GUI app.
 """

@@ -200,6 +200,17 @@ To ensure the integrity and correctness of the codebase, run the unit tests usin
   pytest
   ```
 
+- **To skip slow tests** (i.e., tests marked with `@pytest.mark.slow`):
+  ```bash
+  pytest -m "not slow"
+  ```
+  This will run all tests except those decorated with `@pytest.mark.slow`.
+
+- **To run only slow tests**:
+  ```bash
+  pytest -m slow
+  ```
+
 - **To run a specific test file:**
   ```bash
   pytest test/test_file_name.py

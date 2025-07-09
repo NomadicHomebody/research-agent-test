@@ -1,3 +1,15 @@
+"""
+Unit tests for agent_runner.py.
+
+These tests validate the run_agent workflow, spinner/status updates, debug logging,
+and report file output using mocks for all external dependencies.
+
+- Uses pytest and unittest.mock for patching and assertions.
+- Covers both debug and non-debug execution paths.
+- Ensures correct file output and spinner behavior.
+
+Dependencies: pytest, unittest.mock, agent_runner.py, yaspin
+"""
 import pytest
 import sys
 import os
@@ -7,14 +19,28 @@ from agent_runner import run_agent
 
 @patch('agent_runner.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
-@patch('yaspin.yaspin', autospec=True)
+@patch('agent_runner.yaspin', autospec=True)
 @pytest.mark.slow
 def test_run_agent_with_spinner(mock_yaspin, mock_open_func, mock_stepwise_agent):
     """
     Tests the agent runner to ensure it executes the workflow, updates spinner, and saves the report.
     """
-    mock_spinner = MagicMock()
-    mock_yaspin.return_value = mock_spinner
+    class SpinnerMock:
+        def __init__(self):
+            self.texts = []
+            self.ok = MagicMock()
+            self.stop = MagicMock()
+        @property
+        def text(self):
+            return None
+        @text.setter
+        def text(self, value):
+            self.texts.append(value)
+        def start(self): pass
+        def fail(self, *a, **kw): pass
+
+    spinner_mock = SpinnerMock()
+    mock_yaspin.return_value = spinner_mock
 
     mock_stepwise_agent.return_value = iter([
         ("query_generator", "Generating search queries...", {"search_queries": ["a", "b"]}),
@@ -27,24 +53,16 @@ def test_run_agent_with_spinner(mock_yaspin, mock_open_func, mock_stepwise_agent
 
     run_agent("Test Topic", status_callback=None)
 
-    # Robustly check that spinner.text was set to "Finalizing and writing report..."
-    found_finalizing = False
-    for call in mock_spinner.method_calls:
-        if call[0] == '__setattr__' and call[1][0] == 'text' and "Finalizing and writing report..." in str(call[1][1]):
-            found_finalizing = True
-    # Also check direct attribute assignment if MagicMock supports it
-    if hasattr(mock_spinner, "text"):
-        if "Finalizing and writing report..." in str(mock_spinner.text):
-            found_finalizing = True
-    assert found_finalizing, "spinner.text was not set to 'Finalizing and writing report...'"
-    assert mock_spinner.ok.call_count >= 0
-    assert mock_spinner.stop.call_count >= 0
+    assert any("Finalizing and writing report..." in t for t in spinner_mock.texts), "spinner.text was not set to 'Finalizing and writing report...'"
+    assert spinner_mock.ok.call_count >= 0
+    assert spinner_mock.stop.call_count >= 0
     mock_open_func.assert_called_once_with("research_report.md", "w", encoding="utf-8")
     mock_open_func().write.assert_called_once_with("Report content")
 
 @patch('agent_runner.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('yaspin.yaspin', autospec=True)
+@pytest.mark.slow
 def test_run_agent_with_debug_flag_true(mock_yaspin, mock_open_func, mock_stepwise_agent, capsys):
     """
     Tests that debug logs are printed when debug=True.
@@ -69,6 +87,7 @@ def test_run_agent_with_debug_flag_true(mock_yaspin, mock_open_func, mock_stepwi
 @patch('agent_runner.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('yaspin.yaspin', autospec=True)
+@pytest.mark.slow
 def test_run_agent_with_debug_flag_false(mock_yaspin, mock_open_func, mock_stepwise_agent, capsys):
     """
     Tests that debug logs are not printed when debug=False.

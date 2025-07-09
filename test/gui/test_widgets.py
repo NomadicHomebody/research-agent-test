@@ -5,6 +5,16 @@ print("DEBUG os.getcwd():", os.getcwd())
 import sys, os
 print("DEBUG sys.path:", sys.path)
 print("DEBUG os.getcwd():", os.getcwd())
+# -----------------------------------------------------------------------------
+# File: test_widgets.py
+# Location: test/gui/
+#
+# Unit tests for custom Kivy GUI widgets: MarkdownViewer, StatusPanel, DynamicBackground.
+# These tests cover initialization, rendering, color theming, zoom, scrolling,
+# and widget-specific behaviors.
+#
+# Dependencies: pytest, unittest.mock, Kivy, KivyMD, test/gui/widgets/
+# -----------------------------------------------------------------------------
 """
 Unit tests for custom widgets in the Kivy GUI.
 """

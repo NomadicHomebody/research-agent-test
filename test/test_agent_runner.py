@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from unittest.mock import patch, MagicMock, mock_open
 from agent_runner import run_agent
 
-@patch('agent_runner.stepwise_agent')
+@patch('workflow_builder.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('agent_runner.yaspin', autospec=True)
 @pytest.mark.slow
@@ -59,7 +59,7 @@ def test_run_agent_with_spinner(mock_yaspin, mock_open_func, mock_stepwise_agent
     mock_open_func.assert_called_once_with("research_report.md", "w", encoding="utf-8")
     mock_open_func().write.assert_called_once_with("Report content")
 
-@patch('agent_runner.stepwise_agent')
+@patch('workflow_builder.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('yaspin.yaspin', autospec=True)
 @pytest.mark.slow
@@ -84,7 +84,7 @@ def test_run_agent_with_debug_flag_true(mock_yaspin, mock_open_func, mock_stepwi
         debug_calls = [call for call in mock_print.call_args_list if "[DEBUG]" in str(call)]
         assert debug_calls, "No debug output was printed when debug=True"
 
-@patch('agent_runner.stepwise_agent')
+@patch('workflow_builder.stepwise_agent')
 @patch('builtins.open', new_callable=mock_open)
 @patch('yaspin.yaspin', autospec=True)
 @pytest.mark.slow

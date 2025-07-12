@@ -49,14 +49,13 @@ except Exception as e:
     print(f"WARNING: Could not register RobotoMono.ttf: {e}")
 
 # Register custom widgets for KV loading
-from test.gui.widgets.dynamic_background import DynamicBackground
-from test.gui.widgets.markdown_viewer import MarkdownViewer
-from test.gui.widgets.status_panel import StatusPanel
+from gui.widgets.dynamic_background import DynamicBackground
+from gui.widgets.markdown_viewer import MarkdownViewer
+from gui.widgets.status_panel import StatusPanel
 
 KV = '''
 #:import Window kivy.core.window.Window
 <MainLayout>:
-    # Use FloatLayout for absolute positioning
     FloatLayout:
         DynamicBackground:
             id: bg
@@ -70,22 +69,24 @@ KV = '''
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_x: 0.5
-                padding: 20
-                spacing: 10
+                padding: [32, 32, 16, 32]
+                spacing: 18
 
                 TextInput:
                     id: topic_input
                     hint_text: "Enter research topic..."
-                    size_hint_y: 0.5
+                    size_hint_y: 0.45
                     font_size: 20
                     foreground_color: 0,0,0,1
                     background_color: 1,1,1,1
                     color: 0,0,0,1
+                    padding: [12, 12, 12, 12]
+                    multiline: False
 
                 BoxLayout:
                     orientation: 'horizontal'
-                    size_hint_y: 0.15
-                    spacing: 10
+                    size_hint_y: 0.13
+                    spacing: 14
 
                     Button:
                         id: submit_btn
@@ -94,6 +95,8 @@ KV = '''
                         color: 1,1,1,1
                         font_size: 16
                         on_release: app.on_submit()
+                        padding: [0, 8]
+                        size_hint_x: 0.25
 
                     Button:
                         id: clear_btn
@@ -102,14 +105,8 @@ KV = '''
                         color: 1,1,1,1
                         font_size: 16
                         on_release: app.on_clear()
-
-                    Button:
-                        id: load_btn
-                        text: "Load"
-                        background_color: 0,0.12,0.3,1
-                        color: 1,1,1,1
-                        font_size: 16
-                        on_release: app.on_load()
+                        padding: [0, 8]
+                        size_hint_x: 0.25
 
                     Button:
                         id: save_btn
@@ -118,34 +115,38 @@ KV = '''
                         color: 1,1,1,1
                         font_size: 16
                         on_release: app.on_save()
+                        padding: [0, 8]
+                        size_hint_x: 0.25
+
+                    Button:
+                        id: load_btn
+                        text: "Load"
+                        background_color: 0,0.12,0.3,1
+                        color: 1,1,1,1
+                        font_size: 16
+                        on_release: app.on_load()
+                        padding: [0, 8]
+                        size_hint_x: 0.25
 
                 StatusPanel:
                     id: status_panel
                     size_hint_y: 0.25
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    size_hint_y: 0.1
-                    padding: [0, 10, 0, 0]
-                    Label:
-                        text: "AI Research Agent"
-                        font_size: 18
-                        size_hint_y: 1
-                        halign: 'center'
-                        valign: 'middle'
-                        color: 0,0.12,0.3,1
+                    background_color: 0.95,0.95,0.95,1
+                    text_color: 0,0.12,0.3,1
+                    padding: [10, 10, 10, 10]
 
             # Right column
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_x: 0.5
-                padding: 20
-                spacing: 10
+                padding: [16, 32, 32, 32]
+                spacing: 18
 
                 MarkdownViewer:
                     id: markdown_viewer
                     markdown_text: "Markdown output will appear here."
-                    size_hint_y: 0.8
+                    size_hint_y: 1
+                    padding: [10, 10, 10, 10]
 '''
 # Only load the KV string once at module import
 from kivy.lang import Builder as _Builder

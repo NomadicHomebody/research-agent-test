@@ -44,7 +44,7 @@ def find_mkv_files(input_folder: str) -> list[str]:
     mkv_files: list[str] = []
     for root, dirs, files in os.walk(input_folder):
         for file in files:
-            if file.lower().endswith(".mkv"):
+            if file.lower().endswith(".mkv") or file.lower().endswith(".mp4"):
                 abs_path = os.path.abspath(os.path.join(root, file))
                 abs_path_quoted = abs_path
                 mkv_files.append(abs_path_quoted)
@@ -82,9 +82,6 @@ def build_ffmpeg_command(
 
     if not input_path or not output_path:
         raise ValueError("Both input_path and output_path must be provided.")
-
-    input_path_quoted = quote_if_needed(input_path)
-    output_path_quoted = quote_if_needed(output_path)
 
     return [
         "ffmpeg",
@@ -197,7 +194,7 @@ def main(
         file_iter = mkv_files
 
     for idx, mkv_path in enumerate(file_iter, 1):
-        mp4_path = mkv_path[:-4] + ".mp4"
+        mp4_path = mkv_path[:-4] + "_.mp4"
         cmd = build_ffmpeg_command(mkv_path, mp4_path)
         status_msg = f"[{idx}/{len(mkv_files)}] {os.path.basename(mkv_path)}"
         if dry_run:
